@@ -1,16 +1,26 @@
-gonzo: gonzo.o
-	cc -std=c11 -Wall -Wextra -Wshadow -g -o gonzo gonzo.o
+HOMEBREW_DIR = /opt/homebrew
 
-gonzo.o: gonzo.c culid.h
-	cc -c -std=c11 -DCULID_FORCE_UINT128 -Wall -Wextra -Wshadow -g -o gonzo.o gonzo.c
-	# cc -c -std=c11 -DCULID_FORCE_STRUCT -Wall -Wextra -Wshadow -g -o gonzo.o gonzo.c
+CFLAGS += -std=c11
+CFLAGS += -DCULID_FORCE_UINT128
+# CFLAGS += -DCULID_FORCE_STRUCT
+CFLAGS += -Wall -Wextra -Wshadow
+CFLAGS += -g
+# CFLAGS += -O
+
+CPP_FLAGS += -std=c++17
+CPP_FLAGS += -I$(HOMEBREW_DIR)/include -I.
+CPP_FLAGS += -L$(HOMEBREW_DIR)/lib
+CPP_LIBS = -lgtest -lgtest_main
+
+gonzo: gonzo.c culid.h
+	cc $(CFLAGS) -o gonzo gonzo.c
 
 t/culid_test: t/culid_test.cc
-	c++ -std=c++17 -I/opt/homebrew/include -I. -o t/culid_test t/culid_test.cc -L/opt/homebrew/lib -lgtest -lgtest_main
+	c++ $(CPP_FLAGS) -o t/culid_test t/culid_test.cc $(CPP_LIBS)
 
 test: t/culid_test
 	t/culid_test
 
 clean:
-	rm -f gonzo gonzo.o
+	rm -fr gonzo gonzo.dSYM
 	rm -f t/culid_test
