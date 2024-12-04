@@ -3,7 +3,8 @@ HOMEBREW_DIR = /opt/homebrew
 # AFLAGS += -DCULID_FORCE_UINT128
 AFLAGS += -DCULID_FORCE_STRUCT
 AFLAGS += -Wall -Wextra -Wshadow
-AFLAGS += -I$(HOMEBREW_DIR)/include -I.
+AFLAGS += -I.
+AFLAGS += -I$(HOMEBREW_DIR)/include
 AFLAGS += -L$(HOMEBREW_DIR)/lib
 AFLAGS += -g
 # AFLAGS += -O
@@ -17,14 +18,16 @@ CPP_FLAGS += $(AFLAGS)
 TEST_LIBS = -lgtest -lgtest_main
 BENCH_LIBS = -lbenchmark -lbenchmark_main
 
-gonzo: gonzo.c culid.h culid_uint128.h culid_struct.h
-	cc $(CFLAGS) -o gonzo gonzo.c
+HEADERS = culid.h culid_uint128.h culid_struct.h
 
-t/culid_test: t/culid_test.cc culid.h culid_uint128.h culid_struct.h
-	c++ $(CPP_FLAGS) -o t/culid_test t/culid_test.cc $(TEST_LIBS)
+gonzo: gonzo.c $(HEADERS)
+	cc $(CFLAGS) -o $@ $(word 1, $^)
 
-t/culid_bench: t/culid_bench.cc culid.h culid_uint128.h culid_struct.h
-	c++ $(CPP_FLAGS) -o t/culid_bench t/culid_bench.cc $(BENCH_LIBS)
+t/culid_test: t/culid_test.cc $(HEADERS)
+	c++ $(CPP_FLAGS) -o $@ $(word 1, $^) $(TEST_LIBS)
+
+t/culid_bench: t/culid_bench.cc $(HEADERS)
+	c++ $(CPP_FLAGS) -o $@ $(word 1, $^) $(BENCH_LIBS)
 
 test: t/culid_test
 	t/culid_test

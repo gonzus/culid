@@ -1,257 +1,13 @@
 #pragma once
 
-// #include <chrono>
-// #include <cstdlib>
-// #include <ctime>
-// #include <functional>
-// #include <random>
-// #include <vector>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <time.h>
 
-/**
- * ULID is a 16 byte Universally Unique Lexicographically Sortable Identifier
- * */
 typedef struct ULID {
   uint8_t data[16];
-
-#if 0
-  ULID() {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[i] = 0;
-    // }
-
-    // unrolled loop
-    data[0] = 0;
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 0;
-    data[4] = 0;
-    data[5] = 0;
-    data[6] = 0;
-    data[7] = 0;
-    data[8] = 0;
-    data[9] = 0;
-    data[10] = 0;
-    data[11] = 0;
-    data[12] = 0;
-    data[13] = 0;
-    data[14] = 0;
-    data[15] = 0;
-  }
-
-  ULID(uint64_t val) {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[15 - i] = (uint8_t)(val);
-    // 	val >>= 8;
-    // }
-
-    // unrolled loop
-    data[15] = (uint8_t)(val);
-
-    val >>= 8;
-    data[14] = (uint8_t)(val);
-
-    val >>= 8;
-    data[13] = (uint8_t)(val);
-
-    val >>= 8;
-    data[12] = (uint8_t)(val);
-
-    val >>= 8;
-    data[11] = (uint8_t)(val);
-
-    val >>= 8;
-    data[10] = (uint8_t)(val);
-
-    val >>= 8;
-    data[9] = (uint8_t)(val);
-
-    val >>= 8;
-    data[8] = (uint8_t)(val);
-
-    data[7] = 0;
-    data[6] = 0;
-    data[5] = 0;
-    data[4] = 0;
-    data[3] = 0;
-    data[2] = 0;
-    data[1] = 0;
-    data[0] = 0;
-  }
-
-  ULID(const ULID &other) {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[i] = other.data[i];
-    // }
-
-    // unrolled loop
-    data[0] = other.data[0];
-    data[1] = other.data[1];
-    data[2] = other.data[2];
-    data[3] = other.data[3];
-    data[4] = other.data[4];
-    data[5] = other.data[5];
-    data[6] = other.data[6];
-    data[7] = other.data[7];
-    data[8] = other.data[8];
-    data[9] = other.data[9];
-    data[10] = other.data[10];
-    data[11] = other.data[11];
-    data[12] = other.data[12];
-    data[13] = other.data[13];
-    data[14] = other.data[14];
-    data[15] = other.data[15];
-  }
-
-  ULID &operator=(const ULID &other) {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[i] = other.data[i];
-    // }
-
-    // unrolled loop
-    data[0] = other.data[0];
-    data[1] = other.data[1];
-    data[2] = other.data[2];
-    data[3] = other.data[3];
-    data[4] = other.data[4];
-    data[5] = other.data[5];
-    data[6] = other.data[6];
-    data[7] = other.data[7];
-    data[8] = other.data[8];
-    data[9] = other.data[9];
-    data[10] = other.data[10];
-    data[11] = other.data[11];
-    data[12] = other.data[12];
-    data[13] = other.data[13];
-    data[14] = other.data[14];
-    data[15] = other.data[15];
-
-    return *this;
-  }
-
-  ULID(ULID &&other) {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[i] = other.data[i];
-    // 	other.data[i] = 0;
-    // }
-
-    // unrolled loop
-    data[0] = other.data[0];
-    other.data[0] = 0;
-
-    data[1] = other.data[1];
-    other.data[1] = 0;
-
-    data[2] = other.data[2];
-    other.data[2] = 0;
-
-    data[3] = other.data[3];
-    other.data[3] = 0;
-
-    data[4] = other.data[4];
-    other.data[4] = 0;
-
-    data[5] = other.data[5];
-    other.data[5] = 0;
-
-    data[6] = other.data[6];
-    other.data[6] = 0;
-
-    data[7] = other.data[7];
-    other.data[7] = 0;
-
-    data[8] = other.data[8];
-    other.data[8] = 0;
-
-    data[9] = other.data[9];
-    other.data[9] = 0;
-
-    data[10] = other.data[10];
-    other.data[10] = 0;
-
-    data[11] = other.data[11];
-    other.data[11] = 0;
-
-    data[12] = other.data[12];
-    other.data[12] = 0;
-
-    data[13] = other.data[13];
-    other.data[13] = 0;
-
-    data[14] = other.data[14];
-    other.data[14] = 0;
-
-    data[15] = other.data[15];
-    other.data[15] = 0;
-  }
-
-  ULID &operator=(ULID &&other) {
-    // for (int i = 0 ; i < 16 ; i++) {
-    // 	data[i] = other.data[i];
-    // 	other.data[i] = 0;
-    // }
-
-    // unrolled loop
-    data[0] = other.data[0];
-    other.data[0] = 0;
-
-    data[1] = other.data[1];
-    other.data[1] = 0;
-
-    data[2] = other.data[2];
-    other.data[2] = 0;
-
-    data[3] = other.data[3];
-    other.data[3] = 0;
-
-    data[4] = other.data[4];
-    other.data[4] = 0;
-
-    data[5] = other.data[5];
-    other.data[5] = 0;
-
-    data[6] = other.data[6];
-    other.data[6] = 0;
-
-    data[7] = other.data[7];
-    other.data[7] = 0;
-
-    data[8] = other.data[8];
-    other.data[8] = 0;
-
-    data[9] = other.data[9];
-    other.data[9] = 0;
-
-    data[10] = other.data[10];
-    other.data[10] = 0;
-
-    data[11] = other.data[11];
-    other.data[11] = 0;
-
-    data[12] = other.data[12];
-    other.data[12] = 0;
-
-    data[13] = other.data[13];
-    other.data[13] = 0;
-
-    data[14] = other.data[14];
-    other.data[14] = 0;
-
-    data[15] = other.data[15];
-    other.data[15] = 0;
-
-    return *this;
-  }
-#endif
 } ULID;
 
-/**
- * EncodeTime will encode the first 6 bytes of a uint8_t array to the passed
- * timestamp
- * */
 static inline void EncodeTime(time_t timestamp, ULID *ulid) {
   ulid->data[0] = (uint8_t)(timestamp >> 40);
   ulid->data[1] = (uint8_t)(timestamp >> 32);
@@ -261,30 +17,6 @@ static inline void EncodeTime(time_t timestamp, ULID *ulid) {
   ulid->data[5] = (uint8_t)(timestamp);
 }
 
-/**
- * EncodeTimeNow will encode a ULID using the time obtained using
- * std::time(nullptr)
- * */
-static inline void EncodeTimeNow(ULID *ulid) {
-  // gonzo
-  EncodeTime(time(0), ulid);
-}
-
-/**
- * EncodeTimeSystemClockNow will encode a ULID using the time obtained using
- * std::chrono::system_clock::now() by taking the timestamp in milliseconds.
- * */
-static inline void EncodeTimeSystemClockNow(ULID *ulid) {
-  struct timeval now;
-  gettimeofday(&now, 0);
-  unsigned long ms = now.tv_sec * 1000 + now.tv_usec / 1000;
-  EncodeTime(ms, ulid);
-}
-
-/**
- * EncodeEntropy will encode the last 10 bytes of the passed uint8_t array with
- * the values generated using the passed random number generator.
- * */
 static inline unsigned EncodeEntropy(uint8_t rng[], ULID *ulid) {
   ulid->data[6] = rng[0];
   ulid->data[7] = rng[1];
@@ -297,19 +29,6 @@ static inline unsigned EncodeEntropy(uint8_t rng[], ULID *ulid) {
   ulid->data[14] = rng[8];
   ulid->data[15] = rng[9];
   return 10;
-}
-
-/**
- * EncodeEntropyRand will encode a ulid using std::rand
- *
- * std::rand returns values in [0, RAND_MAX]
- * */
-static inline unsigned EncodeEntropyRand(ULID *ulid) {
-  uint8_t rng[10];
-  for (unsigned p = 0; p < 10; ++p) {
-    rng[p] = rand() * 255ull / RAND_MAX;
-  }
-  return EncodeEntropy(rng, ulid);
 }
 
 #if 0
@@ -335,66 +54,6 @@ static inline void EncodeEntropyMt19937(std::mt19937 &generator, ULID &ulid) {
 }
 #endif
 
-/**
- * Encode will create an encoded ULID with a timestamp and a generator.
- * */
-static inline void Encode(time_t timestamp, uint8_t rng[], ULID *ulid) {
-  EncodeTime(timestamp, ulid);
-  EncodeEntropy(rng, ulid);
-}
-
-/**
- * EncodeNowRand = EncodeTimeNow + EncodeEntropyRand.
- * */
-static inline void EncodeNowRand(ULID *ulid) {
-  EncodeTimeNow(ulid);
-  EncodeEntropyRand(ulid);
-}
-
-/**
- * Create will create a ULID with a timestamp and a generator.
- * */
-static inline ULID Create(time_t timestamp, uint8_t rng[]) {
-  ULID ulid = {0};
-  Encode(timestamp, rng, &ulid);
-  return ulid;
-}
-
-/**
- * CreateNowRand:EncodeNowRand = Create:Encode.
- * */
-static inline ULID CreateNowRand() {
-  ULID ulid = {0};
-  EncodeNowRand(&ulid);
-  return ulid;
-}
-
-/**
- * Crockford's Base32
- * */
-static const char Encoding[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-/**
- * MarshalTo will marshal a ULID to the passed character array.
- *
- * Implementation taken directly from oklog/ulid
- * (https://sourcegraph.com/github.com/oklog/ulid@0774f81f6e44af5ce5e91c8d7d76cf710e889ebb/-/blob/ulid.go#L162-190)
- *
- * timestamp:<br>
- * dst[0]: first 3 bits of data[0]<br>
- * dst[1]: last 5 bits of data[0]<br>
- * dst[2]: first 5 bits of data[1]<br>
- * dst[3]: last 3 bits of data[1] + first 2 bits of data[2]<br>
- * dst[4]: bits 3-7 of data[2]<br>
- * dst[5]: last bit of data[2] + first 4 bits of data[3]<br>
- * dst[6]: last 4 bits of data[3] + first bit of data[4]<br>
- * dst[7]: bits 2-6 of data[4]<br>
- * dst[8]: last 2 bits of data[4] + first 3 bits of data[5]<br>
- * dst[9]: last 5 bits of data[5]<br>
- *
- * entropy:
- * follows similarly, except now all components are set to 5 bits.
- * */
 static inline const char *MarshalTo(const ULID *ulid, char dst[27]) {
   // 10 byte timestamp
   dst[0] = Encoding[(ulid->data[0] & 224) >> 5];
@@ -435,9 +94,6 @@ static inline const char *MarshalTo(const ULID *ulid, char dst[27]) {
   return dst;
 }
 
-/**
- * MarshalBinaryTo will Marshal a ULID to the passed byte array
- * */
 static inline void MarshalBinaryTo(const ULID *ulid, uint8_t dst[16]) {
   // timestamp
   dst[0] = ulid->data[0];
@@ -460,56 +116,6 @@ static inline void MarshalBinaryTo(const ULID *ulid, uint8_t dst[16]) {
   dst[15] = ulid->data[15];
 }
 
-/**
- * dec storesdecimal encodings for characters.
- * 0xFF indicates invalid character.
- * 48-57 are digits.
- * 65-90 are capital alphabets.
- * */
-static const uint8_t dec[256] = {
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF,
-    /* 0     1     2     3     4     5     6     7  */
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    /* 8     9                                      */
-    0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    /*    10(A) 11(B) 12(C) 13(D) 14(E) 15(F) 16(G) */
-    0xFF, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
-    /*17(H)     18(J) 19(K)       20(M) 21(N)       */
-    0x11, 0xFF, 0x12, 0x13, 0xFF, 0x14, 0x15, 0xFF,
-    /*22(P)23(Q)24(R) 25(S) 26(T)       27(V) 28(W) */
-    0x16, 0x17, 0x18, 0x19, 0x1A, 0xFF, 0x1B, 0x1C,
-    /*29(X)30(Y)31(Z)                               */
-    0x1D, 0x1E, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-
-/**
- * UnmarshalFrom will unmarshal a ULID from the passed character array.
- * */
 static inline void UnmarshalFrom(const char *str, ULID *ulid) {
   // timestamp
   ulid->data[0] = (dec[(int)str[0]] << 5) | dec[(int)str[1]];
@@ -538,9 +144,6 @@ static inline void UnmarshalFrom(const char *str, ULID *ulid) {
   ulid->data[15] = (dec[(int)str[24]] << 5) | dec[(int)str[25]];
 }
 
-/**
- * UnmarshalBinaryFrom will unmarshal a ULID from the passed byte array.
- * */
 static inline void UnmarshalBinaryFrom(const uint8_t *b, ULID *ulid) {
   // timestamp
   ulid->data[0] = b[0];
@@ -563,13 +166,6 @@ static inline void UnmarshalBinaryFrom(const uint8_t *b, ULID *ulid) {
   ulid->data[15] = b[15];
 }
 
-/**
- * CompareULIDs will compare two ULIDs.
- * returns:
- *     -1 if ulid1 is Lexicographically before ulid2
- *      1 if ulid1 is Lexicographically after ulid2
- *      0 if ulid1 is same as ulid2
- * */
 static inline int CompareULIDs(const ULID *ulid1, const ULID *ulid2) {
   // for (int i = 0 ; i < 16 ; i++) {
   // 	if (ulid1.data[i] != ulid2->data[i]) {
@@ -646,9 +242,6 @@ static inline int CompareULIDs(const ULID *ulid1, const ULID *ulid2) {
   return 0;
 }
 
-/**
- * Time will extract the timestamp used to generate a ULID
- * */
 static inline time_t Time(const ULID *ulid) {
   time_t ans = 0;
 
