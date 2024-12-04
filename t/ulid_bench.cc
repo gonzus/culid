@@ -86,7 +86,7 @@ static void CreateNowRand(benchmark::State &state) {
 BENCHMARK(CreateNowRand);
 
 static void MarshalTo(benchmark::State &state) {
-  char a[27];
+  char a[26];
   ULID ulid = ULID_CreateNowRand();
   while (state.KeepRunning()) {
     ULID_MarshalTo(&ulid, a);

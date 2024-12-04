@@ -180,7 +180,7 @@ static inline unsigned ULID_EncodeEntropy(uint8_t rnd[], ULID *ulid);
  * entropy:
  * follows similarly, except now all components are set to 5 bits.
  */
-static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[27]);
+static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[26]);
 
 /**
  * ULID_MarshalBinaryTo will Marshal a ULID to the passed byte array.

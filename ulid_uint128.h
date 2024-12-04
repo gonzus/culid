@@ -67,7 +67,7 @@ static inline unsigned ULID_EncodeEntropy(uint8_t rnd[], ULID *ulid) {
   return 10;
 }
 
-static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[27]) {
+static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[26]) {
   // 10 byte timestamp
   dst[0] = ULID_Encoding[((uint8_t)(*ulid >> 120) & 224) >> 5];
   dst[1] = ULID_Encoding[(uint8_t)(*ulid >> 120) & 31];
@@ -110,7 +110,6 @@ static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[27]) {
                           ((((uint8_t)(*ulid)) & 224) >> 5)];
   dst[25] = ULID_Encoding[((uint8_t)(*ulid)) & 31];
 
-  dst[26] = '\0';
   return dst;
 }
 

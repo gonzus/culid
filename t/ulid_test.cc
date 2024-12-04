@@ -10,11 +10,10 @@ TEST(basic, 1) {
   }
   ULID ulid = ULID_Create(time(0), rnd);
 
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }
@@ -40,11 +39,10 @@ TEST(EncodeTimeNow, 1) {
   ULID ulid = {0};
   ULID_EncodeTimeNow(&ulid);
   ULID_EncodeEntropy(rnd, &ulid);
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }
@@ -57,11 +55,10 @@ TEST(EncodeTimeSystemClockNow, 1) {
   ULID ulid = {0};
   ULID_EncodeTimeSystemClockNow(&ulid);
   ULID_EncodeEntropy(rnd, &ulid);
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }
@@ -70,11 +67,10 @@ TEST(EncodeEntropyRand, 1) {
   ULID ulid = {0};
   ULID_EncodeTimeNow(&ulid);
   ULID_EncodeEntropyRand(&ulid);
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }
@@ -103,22 +99,20 @@ TEST(EncodeEntropyRand, 2) {
 TEST(EncodeNowRand, 1) {
   ULID ulid = {0};
   ULID_EncodeNowRand(&ulid);
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }
 
 TEST(CreateNowRand, 1) {
   ULID ulid = ULID_CreateNowRand();
-  char txt[27];
+  char txt[26];
   ULID_MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26ul, strlen(txt));
-  for (unsigned p = 0; p < 27; ++p) {
+  for (unsigned p = 0; p < 26; ++p) {
     ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
   }
 }

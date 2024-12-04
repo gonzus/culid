@@ -4,9 +4,9 @@
 static void print_ulids(unsigned n) {
   for (unsigned p = 0; p < n; ++p) {
     ULID ulid = ULID_CreateNowRand();
-    char txt[27];
+    char txt[26];
     ULID_MarshalTo(&ulid, txt);
-    printf("ULID: [%s]\n", txt);
+    printf("ULID: [%.*s]\n", 26, txt);
   }
 }
 
