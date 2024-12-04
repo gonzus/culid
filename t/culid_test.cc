@@ -13,81 +13,94 @@ TEST(basic, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
+  ASSERT_EQ(26, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
-#if 0
-
 TEST(Create, 1) {
-  ulid::ULID ulid1 = 0;
-  ulid::Encode(1484581420, []() { return 4; }, ulid1);
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid1 = {0};
+  Encode(1484581420, rng, &ulid1);
 
-  auto ulid2 = ulid::Create(1484581420, []() { return 4; });
+  ULID ulid2 = Create(1484581420, rng);
 
-  ASSERT_EQ(0, ulid::CompareULIDs(ulid1, ulid2));
+  ASSERT_EQ(0, CompareULIDs(&ulid1, &ulid2));
 }
 
 TEST(EncodeTimeNow, 1) {
-  ulid::ULID ulid = 0;
-  ulid::EncodeTimeNow(ulid);
-  ulid::EncodeEntropy([]() { return 4; }, ulid);
-  std::string str = ulid::Marshal(ulid);
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid = {0};
+  EncodeTimeNow(&ulid);
+  EncodeEntropy(rng, &ulid);
+  char txt[27];
+  MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, str.size());
-  for (char c : str) {
-    ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
+  ASSERT_EQ(26, strlen(txt));
+  for (unsigned p = 0; p < 27; ++p) {
+    ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
 TEST(EncodeTimeSystemClockNow, 1) {
-  ulid::ULID ulid = 0;
-  ulid::EncodeTimeSystemClockNow(ulid);
-  ulid::EncodeEntropy([]() { return 4; }, ulid);
-  std::string str = ulid::Marshal(ulid);
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid = {0};
+  EncodeTimeSystemClockNow(&ulid);
+  EncodeEntropy(rng, &ulid);
+  char txt[27];
+  MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, str.size());
-  for (char c : str) {
-    ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
+  ASSERT_EQ(26, strlen(txt));
+  for (unsigned p = 0; p < 27; ++p) {
+    ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
 TEST(EncodeEntropyRand, 1) {
-  ulid::ULID ulid = 0;
-  ulid::EncodeTimeNow(ulid);
-  ulid::EncodeEntropyRand(ulid);
-  std::string str = ulid::Marshal(ulid);
+  ULID ulid = {0};
+  EncodeTimeNow(&ulid);
+  EncodeEntropyRand(&ulid);
+  char txt[27];
+  MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, str.size());
-  for (char c : str) {
-    ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
+  ASSERT_EQ(26, strlen(txt));
+  for (unsigned p = 0; p < 27; ++p) {
+    ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
 TEST(EncodeEntropyRand, 2) {
   time_t timestamp = 1000000;
-  auto duration = std::chrono::seconds(timestamp);
-  auto nsduration =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
-  auto msduration =
-      std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+  unsigned long duration_s = timestamp;
+  unsigned long duration_ms = duration_s * 1000;
+  unsigned long duration_ns = duration_ms * 1000000;
 
-  ulid::ULID ulid1 = 0;
-  ulid::EncodeTime(msduration.count(), ulid1);
+  ULID ulid1 = {0};
+  EncodeTime(duration_ms, &ulid1);
 
-  std::srand(nsduration.count());
-  ulid::EncodeEntropyRand(ulid1);
+  std::srand(duration_ns);
+  EncodeEntropyRand(&ulid1);
 
-  ulid::ULID ulid2 = 0;
-  ulid::EncodeTime(msduration.count(), ulid2);
+  ULID ulid2 = {0};
+  EncodeTime(duration_ms, &ulid2);
 
-  std::srand(nsduration.count());
-  ulid::EncodeEntropyRand(ulid2);
+  std::srand(duration_ns);
+  EncodeEntropyRand(&ulid2);
 
-  ASSERT_EQ(0, ulid::CompareULIDs(ulid1, ulid2));
+  ASSERT_EQ(0, CompareULIDs(&ulid1, &ulid2));
 }
 
+#if 0
 TEST(EncodeEntropyMt19937, 1) {
   ulid::ULID ulid = 0;
   ulid::EncodeTimeNow(ulid);
@@ -101,78 +114,100 @@ TEST(EncodeEntropyMt19937, 1) {
     ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
   }
 }
+#endif
 
 TEST(EncodeNowRand, 1) {
-  ulid::ULID ulid = 0;
-  ulid::EncodeNowRand(ulid);
-  std::string str = ulid::Marshal(ulid);
+  ULID ulid = {0};
+  EncodeNowRand(&ulid);
+  char txt[27];
+  MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, str.size());
-  for (char c : str) {
-    ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
+  ASSERT_EQ(26, strlen(txt));
+  for (unsigned p = 0; p < 27; ++p) {
+    ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
 TEST(CreateNowRand, 1) {
-  ulid::ULID ulid = ulid::CreateNowRand();
-  std::string str = ulid::Marshal(ulid);
+  ULID ulid = CreateNowRand();
+  char txt[27];
+  MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, str.size());
-  for (char c : str) {
-    ASSERT_NE(std::string::npos, std::string(ulid::Encoding).find(c));
+  ASSERT_EQ(26, strlen(txt));
+  for (unsigned p = 0; p < 27; ++p) {
+    ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
 }
 
 TEST(MarshalBinary, 1) {
-  ulid::ULID ulid = ulid::Create(1484581420, []() { return 4; });
-  std::vector<uint8_t> b = ulid::MarshalBinary(ulid);
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid = Create(1484581420, rng);
+  uint8_t bin[16];
+  MarshalBinaryTo(&ulid, bin);
 
-#ifdef ULIDUINT128
+#ifdef CULID_USE_UINT128
   for (int i = 15; i >= 0; i--) {
-    ASSERT_EQ(static_cast<uint8_t>(ulid), b[i]);
+    ASSERT_EQ((uint8_t)ulid, bin[i]);
     ulid >>= 8;
   }
 #else
   for (int i = 0; i < 16; i++) {
-    ASSERT_EQ(ulid.data[i], b[i]);
+    ASSERT_EQ(ulid.data[i], bin[i]);
   }
-#endif // ULIDUINT128
+#endif
 }
 
 TEST(Unmarshal, 1) {
-  ulid::ULID ulid = ulid::Unmarshal("0001C7STHC0G2081040G208104");
-  ulid::ULID ulid_expected = ulid::Create(1484581420, []() { return 4; });
-  ASSERT_EQ(0, ulid::CompareULIDs(ulid_expected, ulid));
+  ULID ulid = {0};
+  UnmarshalFrom("0001C7STHC0G2081040G208104", &ulid);
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid_expected = Create(1484581420, rng);
+  ASSERT_EQ(0, CompareULIDs(&ulid_expected, &ulid));
 }
 
 TEST(UnmarshalBinary, 1) {
-  ulid::ULID ulid_expected = ulid::Create(1484581420, []() { return 4; });
-  std::vector<uint8_t> b = ulid::MarshalBinary(ulid_expected);
-  ulid::ULID ulid = ulid::UnmarshalBinary(b);
-  ASSERT_EQ(0, ulid::CompareULIDs(ulid_expected, ulid));
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid_expected = Create(1484581420, rng);
+  uint8_t bin[16];
+  MarshalBinaryTo(&ulid_expected, bin);
+  ULID ulid = {0};
+  UnmarshalBinaryFrom(bin, &ulid);
+  ASSERT_EQ(0, CompareULIDs(&ulid_expected, &ulid));
 }
 
 TEST(Time, 1) {
-  ulid::ULID ulid = ulid::Create(1484581420, []() { return 4; });
-  ASSERT_EQ(1484581420, ulid::Time(ulid));
+  uint8_t rng[10];
+  for (unsigned p = 0; p < 10; ++p) {
+    rng[p] = 4;
+  }
+  ULID ulid = Create(1484581420, rng);
+  ASSERT_EQ(1484581420, Time(&ulid));
 }
 
 // https://github.com/oklog/ulid/blob/master/ulid_test.go#L160-L169
 TEST(AlizainCompatibility, 1) {
-  ulid::ULID ulid_got = 0;
-  ulid::EncodeTime(uint64_t(1469918176385), ulid_got);
+  ULID ulid_got = {0};
+  EncodeTime((uint64_t)1469918176385, &ulid_got);
 
-  ulid::ULID ulid_want = ulid::Unmarshal("01ARYZ6S410000000000000000");
-  ASSERT_EQ(0, ulid::CompareULIDs(ulid_want, ulid_got));
+  ULID ulid_want = {0};
+  UnmarshalFrom("01ARYZ6S410000000000000000", &ulid_want);
+  ASSERT_EQ(0, CompareULIDs(&ulid_want, &ulid_got));
 }
 
 TEST(LexicographicalOrder, 1) {
-  ulid::ULID ulid1 = ulid::CreateNowRand();
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  ulid::ULID ulid2 = ulid::CreateNowRand();
+  ULID ulid1 = CreateNowRand();
+  sleep(1);
+  ULID ulid2 = CreateNowRand();
 
-  EXPECT_EQ(-1, ulid::CompareULIDs(ulid1, ulid2));
-  EXPECT_EQ(1, ulid::CompareULIDs(ulid2, ulid1));
+  EXPECT_EQ(-1, CompareULIDs(&ulid1, &ulid2));
+  EXPECT_EQ(1, CompareULIDs(&ulid2, &ulid1));
 }
-
-#endif
