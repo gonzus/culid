@@ -4,16 +4,16 @@
 // This is an implementation in C, header only.
 // https://github.com/ulid/spec
 
-#if defined(CULID_FORCE_UINT128) && defined(CULID_FORCE_STRUCT)
-#error cannot define both CULID_FORCE_UINT128 and CULID_FORCE_STRUCT
+#if defined(ULID_FORCE_UINT128) && defined(ULID_FORCE_STRUCT)
+#error cannot define both ULID_FORCE_UINT128 and ULID_FORCE_STRUCT
 #endif
 
-#if defined(CULID_FORCE_UINT128)
-#define CULID_USE_UINT128
-#elif defined(CULID_FORCE_STRUCT)
-#undef CULID_USE_UINT128
+#if defined(ULID_FORCE_UINT128)
+#define ULID_USE_UINT128
+#elif defined(ULID_FORCE_STRUCT)
+#undef ULID_USE_UINT128
 #elif defined(__SIZEOF_INT128__)
-#define CULID_USE_UINT128
+#define ULID_USE_UINT128
 #endif
 
 #include <stdint.h>
@@ -22,16 +22,16 @@
 /**
  * Crockford's Base32.
  */
-static const char Encoding[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+static const char ULID_Encoding[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
 /**
- * dec stores decimal encodings for characters.
+ * ULID_Decimal stores decimal encodings for characters.
  * 0xFF indicates invalid character.
  * 48-57 are digits.
  * 65-90 are capital letters.
  */
 // clang-format off
-static const uint8_t dec[256] = {
+static const uint8_t ULID_Decimal[256] = {
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -73,94 +73,94 @@ static const uint8_t dec[256] = {
 };
 // clang-format on
 
-#if defined(CULID_USE_UINT128)
-#include "culid_uint128.h"
+#if defined(ULID_USE_UINT128)
+#include "ulid_uint128.h"
 #else
-#include "culid_struct.h"
+#include "ulid_struct.h"
 #endif
 
 /**
- * EncodeTimeNow will encode a ULID using the time obtained using time(0).
+ * ULID_EncodeTimeNow will encode a ULID using the time obtained using time(0).
  */
-static inline void EncodeTimeNow(ULID *ulid) {
+static inline void ULID_EncodeTimeNow(ULID *ulid) {
   // clang-format off
-  EncodeTime(time(0), ulid);
+  ULID_EncodeTime(time(0), ulid);
   // clang-format on
 }
 
 /**
- * EncodeTimeSystemClockNow will encode a ULID using the time obtained using
- * gettimeofday() by taking the timestamp in milliseconds.
+ * ULID_EncodeTimeSystemClockNow will encode a ULID using the time obtained
+ * using gettimeofday() by taking the timestamp in milliseconds.
  */
-static inline void EncodeTimeSystemClockNow(ULID *ulid) {
+static inline void ULID_EncodeTimeSystemClockNow(ULID *ulid) {
   struct timeval now;
   gettimeofday(&now, 0);
   unsigned long ms = now.tv_sec * 1000 + now.tv_usec / 1000;
-  EncodeTime(ms, ulid);
+  ULID_EncodeTime(ms, ulid);
 }
 
 /**
- * EncodeEntropyRand will encode a ulid using rand().
+ * ULID_EncodeEntropyRand will encode a ulid using rand().
  *
  * rand() returns values in [0, RAND_MAX].
  */
-static inline unsigned EncodeEntropyRand(ULID *ulid) {
-  uint8_t rng[10];
+static inline unsigned ULID_EncodeEntropyRand(ULID *ulid) {
+  uint8_t rnd[10];
   for (unsigned p = 0; p < 10; ++p) {
-    rng[p] = rand() * 255ull / RAND_MAX;
+    rnd[p] = rand() * 255ull / RAND_MAX;
   }
-  return EncodeEntropy(rng, ulid);
+  return ULID_EncodeEntropy(rnd, ulid);
 }
 
 /**
- * Encode will create an encoded ULID with a timestamp and bytes taken from an
- * array (which must be pre-filled).
+ * ULID_Encode will create an encoded ULID with a timestamp and bytes taken from
+ * an array (which must be pre-filled).
  */
-static inline void Encode(time_t timestamp, uint8_t rng[], ULID *ulid) {
-  EncodeTime(timestamp, ulid);
-  EncodeEntropy(rng, ulid);
+static inline void ULID_Encode(time_t timestamp, uint8_t rnd[], ULID *ulid) {
+  ULID_EncodeTime(timestamp, ulid);
+  ULID_EncodeEntropy(rnd, ulid);
 }
 
 /**
- * EncodeNowRand = EncodeTimeNow + EncodeEntropyRand.
+ * ULID_EncodeNowRand = ULID_EncodeTimeNow + ULID_EncodeEntropyRand.
  */
-static inline void EncodeNowRand(ULID *ulid) {
-  EncodeTimeNow(ulid);
-  EncodeEntropyRand(ulid);
+static inline void ULID_EncodeNowRand(ULID *ulid) {
+  ULID_EncodeTimeNow(ulid);
+  ULID_EncodeEntropyRand(ulid);
 }
 
 /**
- * Create will create a ULID with a timestamp and a generator.
+ * ULID_Create will create a ULID with a timestamp and a generator.
  */
-static inline ULID Create(time_t timestamp, uint8_t rng[]) {
+static inline ULID ULID_Create(time_t timestamp, uint8_t rnd[]) {
   ULID ulid = {0};
-  Encode(timestamp, rng, &ulid);
+  ULID_Encode(timestamp, rnd, &ulid);
   return ulid;
 }
 
 /**
- * CreateNowRand:EncodeNowRand = Create:Encode.
+ * ULID_CreateNowRand : ULID_EncodeNowRand = ULID_Create : ULID_Encode.
  */
-static inline ULID CreateNowRand() {
+static inline ULID ULID_CreateNowRand() {
   ULID ulid = {0};
-  EncodeNowRand(&ulid);
+  ULID_EncodeNowRand(&ulid);
   return ulid;
 }
 
 /**
- * EncodeTime will encode the first 6 bytes of a uint8_t array to the passed
- * timestamp.
+ * ULID_EncodeTime will encode the first 6 bytes of a uint8_t array to the
+ * passed timestamp.
  */
-static inline void EncodeTime(time_t timestamp, ULID *ulid);
+static inline void ULID_EncodeTime(time_t timestamp, ULID *ulid);
 
 /**
- * EncodeEntropy will encode the last 10 bytes of the passed uint8_t array with
- * the values from a byte array.
+ * ULID_EncodeEntropy will encode the last 10 bytes of the passed uint8_t array
+ * with the values from a byte array.
  */
-static inline unsigned EncodeEntropy(uint8_t rng[], ULID *ulid);
+static inline unsigned ULID_EncodeEntropy(uint8_t rnd[], ULID *ulid);
 
 /**
- * MarshalTo will marshal a ULID to the passed character array.
+ * ULID_MarshalTo will marshal a ULID to the passed character array.
  *
  * Implementation taken directly from oklog/ulid
  * (https://sourcegraph.com/github.com/oklog/ulid@0774f81f6e44af5ce5e91c8d7d76cf710e889ebb/-/blob/ulid.go#L162-190)
@@ -180,33 +180,33 @@ static inline unsigned EncodeEntropy(uint8_t rng[], ULID *ulid);
  * entropy:
  * follows similarly, except now all components are set to 5 bits.
  */
-static inline const char *MarshalTo(const ULID *ulid, char dst[27]);
+static inline const char *ULID_MarshalTo(const ULID *ulid, char dst[27]);
 
 /**
- * MarshalBinaryTo will Marshal a ULID to the passed byte array.
+ * ULID_MarshalBinaryTo will Marshal a ULID to the passed byte array.
  */
-static inline void MarshalBinaryTo(const ULID *ulid, uint8_t dst[16]);
+static inline void ULID_MarshalBinaryTo(const ULID *ulid, uint8_t dst[16]);
 
 /**
- * UnmarshalFrom will unmarshal a ULID from the passed character array.
+ * ULID_UnmarshalFrom will unmarshal a ULID from the passed character array.
  */
-static inline void UnmarshalFrom(const char *str, ULID *ulid);
+static inline void ULID_UnmarshalFrom(const char *str, ULID *ulid);
 
 /**
- * UnmarshalBinaryFrom will unmarshal a ULID from the passed byte array.
+ * ULID_UnmarshalBinaryFrom will unmarshal a ULID from the passed byte array.
  */
-static inline void UnmarshalBinaryFrom(const uint8_t *b, ULID *ulid);
+static inline void ULID_UnmarshalBinaryFrom(const uint8_t *b, ULID *ulid);
 
 /**
- * CompareULIDs will compare two ULIDs.
+ * ULID_Compare will compare two ULIDs.
  * returns:
  *     -1 if ulid1 is Lexicographically before ulid2
  *      1 if ulid1 is Lexicographically after ulid2
  *      0 if ulid1 is same as ulid2
  */
-static inline int CompareULIDs(const ULID *ulid1, const ULID *ulid2);
+static inline int ULID_Compare(const ULID *ulid1, const ULID *ulid2);
 
 /**
- * Time will extract the timestamp used to generate a ULID.
+ * ULID_Time will extract the timestamp used to generate a ULID.
  */
-static inline time_t Time(const ULID *ulid);
+static inline time_t ULID_Time(const ULID *ulid);
