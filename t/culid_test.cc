@@ -13,7 +13,7 @@ TEST(basic, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
@@ -43,7 +43,7 @@ TEST(EncodeTimeNow, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
@@ -60,7 +60,7 @@ TEST(EncodeTimeSystemClockNow, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
@@ -73,7 +73,7 @@ TEST(EncodeEntropyRand, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
@@ -122,7 +122,7 @@ TEST(EncodeNowRand, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }
@@ -133,7 +133,7 @@ TEST(CreateNowRand, 1) {
   char txt[27];
   MarshalTo(&ulid, txt);
 
-  ASSERT_EQ(26, strlen(txt));
+  ASSERT_EQ(26ul, strlen(txt));
   for (unsigned p = 0; p < 27; ++p) {
     ASSERT_NE(nullptr, strchr(Encoding, txt[p]));
   }

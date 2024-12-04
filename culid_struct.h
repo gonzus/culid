@@ -431,6 +431,7 @@ static inline const char *MarshalTo(const ULID *ulid, char dst[27]) {
   dst[24] =
       Encoding[((ulid->data[14] & 3) << 3) | ((ulid->data[15] & 224) >> 5)];
   dst[25] = Encoding[ulid->data[15] & 31];
+  dst[26] = '\0';
   return dst;
 }
 
