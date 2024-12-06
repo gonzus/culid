@@ -1,50 +1,77 @@
 first: all
 
-HOMEBREW_DIR = /opt/homebrew
+NAME = culid
 
-# AFLAGS += -DULID_FORCE_UINT128
-AFLAGS += -DULID_FORCE_STRUCT
-AFLAGS += -Wall -Wextra -Wshadow
-AFLAGS += -I.
-AFLAGS += -I$(HOMEBREW_DIR)/include
-AFLAGS += -L$(HOMEBREW_DIR)/lib
-AFLAGS += -g
-# AFLAGS += -O
+C_CPP_ALL_FLAGS += -fsanitize=undefined,address
+C_CPP_ALL_FLAGS += -g
+# C_CPP_ALL_FLAGS += -O
+
+C_CPP_COMPILE_FLAGS += -Wall -Wextra -Wshadow
+C_CPP_COMPILE_FLAGS += -I.
+C_CPP_COMPILE_FLAGS += -I$(HOMEBREW_PREFIX)/include
+
+C_CPP_LINK_FLAGS += -L$(HOMEBREW_PREFIX)/lib
 
 CFLAGS += -std=c11
-CFLAGS += $(AFLAGS)
+CFLAGS += $(C_CPP_ALL_FLAGS)
+CFLAGS += $(C_CPP_COMPILE_FLAGS)
 
 CPP_FLAGS += -std=c++17
-CPP_FLAGS += $(AFLAGS)
+CPP_FLAGS += $(C_CPP_ALL_FLAGS)
+CPP_FLAGS += $(C_CPP_COMPILE_FLAGS)
 
-TEST_LIBS = -lgtest -lgtest_main
-BENCH_LIBS = -lbenchmark -lbenchmark_main
+LDFLAGS += $(C_CPP_ALL_FLAGS)
+LDFLAGS += $(C_CPP_LINK_FLAGS)
 
-HEADERS = ulid.h ulid_uint128.h ulid_struct.h
+TEST_LIBS = gtest gtest_main
+TEST_LINK = $(patsubst %,-l%,$(TEST_LIBS))
 
-gonzo: gonzo.c $(HEADERS)  ## build gonzo, a sample program
-	cc $(CFLAGS) -o $@ $(word 1, $^)
+BENCH_LIBS = benchmark benchmark_main
+BENCH_LINK = $(patsubst %,-l%,$(BENCH_LIBS))
 
-t/ulid_test: t/ulid_test.cc $(HEADERS)
-	c++ $(CPP_FLAGS) -o $@ $(word 1, $^) $(TEST_LIBS)
+EXE = $(NAME)
+LIBRARY = lib$(NAME).a
 
-t/ulid_bench: t/ulid_bench.cc $(HEADERS)
-	c++ $(CPP_FLAGS) -o $@ $(word 1, $^) $(BENCH_LIBS)
+C_SRC = \
+	mtwister.c \
+	ulid.c \
+
+C_HDR = $(C_SRC:.c=.h)
+C_OBJ = $(C_SRC:.c=.o)
+EXE_OBJ = $(NAME).o
+
+
+%.o: %.c $(C_HDR)
+	cc $(CFLAGS) -c -o $@ $(word 1, $^)
+
+$(LIBRARY): $(C_OBJ)  ## (re)build library
+	ar -crs $@ $^
+
+$(EXE): $(LIBRARY) $(EXE_OBJ)
+	cc $(LDFLAGS) -o $@ $^
+
+all: $(EXE)  ## build everything
+
+clean:  ## clean up everything
+	rm -f $(C_OBJ) $(EXE_OBJ)
+	rm -f $(EXE)
+	rm -fr $(NAME).dSYM
+	rm -fr t/ulid_test t/ulid_test.dSYM
+	rm -fr t/ulid_bench t/ulid_bench.dSYM
+
+help: ## display this help
+	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?# "}; {printf "\033[36;1m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: first all test bench clean help
+
+t/ulid_test: t/ulid_test.cc $(LIBRARY)
+	c++ $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) $(TEST_LINK)
+
+t/ulid_bench: t/ulid_bench.cc $(LIBRARY)
+	c++ $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) $(BENCH_LINK)
 
 test: t/ulid_test  ## run all tests
 	t/ulid_test
 
 bench: t/ulid_bench  ## run all benchmarks
 	t/ulid_bench
-
-all: gonzo  ## build everything
-
-clean:  ## clean up everything
-	rm -fr gonzo gonzo.dSYM
-	rm -fr t/ulid_test t/ulid_test.dSYM
-	rm -fr t/ulid_bench t/ulid_bench.dSYM
-
-help:  ## display this help
-	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?# "}; {printf "\033[36;1m%-30s\033[0m %s\n", $$1, $$2}'
-
-.PHONY: first all test bench clean help

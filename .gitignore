@@ -1,2 +1,4 @@
-gonzo
+*.o
+*.a
+culid
 gonzo.dSYM

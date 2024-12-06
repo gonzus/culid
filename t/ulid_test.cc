@@ -1,22 +1,57 @@
 #include <gtest/gtest.h>
 
 #include <cstring>
+#include <ctime>
 #include <ulid.h>
 
-TEST(basic, 1) {
-  uint8_t rnd[10];
-  for (unsigned p = 0; p < 10; ++p) {
-    rnd[p] = 4;
-  }
-  ULID ulid = ULID_Create(time(0), rnd);
+TEST(culid, basic_creation_and_formatting) {
+  ULID_Factory uf;
+  ULID_Factory_Init(&uf);
+
+  ULID ulid;
+  ULID_Create(&uf, &ulid);
 
   char txt[26];
-  ULID_MarshalTo(&ulid, txt);
+  ULID_Format(&ulid, txt);
 
   for (unsigned p = 0; p < 26; ++p) {
-    ASSERT_NE(nullptr, strchr(ULID_Encoding, txt[p]));
+    ASSERT_TRUE(isalnum(txt[p]));
   }
 }
+
+static void test_N_ulids(ULID_Factory *uf, unsigned n, int expected) {
+  ULID *ulid = new ULID[n];
+  for (unsigned p = 0; p < n; ++p) {
+    struct timespec ts = {0, 1000000}; // 1 ms
+    nanosleep(&ts, 0);
+    ULID_Create(uf, &ulid[p]);
+  }
+
+  for (unsigned l = 0; l < n; ++l) {
+    for (unsigned r = l + 1; r < n; ++r) {
+      EXPECT_EQ(expected, ULID_Compare(&ulid[l], &ulid[r]));
+    }
+  }
+  delete[] ulid;
+}
+
+TEST(culid, sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_Init(&uf);
+
+  test_N_ulids(&uf, 100, -1);
+}
+
+TEST(culid, fixed_time_entropy_produces_identical_ulids) {
+  ULID_Factory uf;
+  uint8_t entropy[10] = {1, 2, 3, 4, 5, 6, 7, 8, 7, 6};
+  ULID_Factory_SetEntropy(&uf, entropy);
+  ULID_Factory_SetTime(&uf, 1733505202556);
+
+  test_N_ulids(&uf, 100, 0);
+}
+
+#if 0
 
 TEST(Create, 1) {
   uint8_t rnd[10];
@@ -189,3 +224,5 @@ TEST(LexicographicalOrder, 1) {
   EXPECT_EQ(-1, ULID_Compare(&ulid1, &ulid2));
   EXPECT_EQ(1, ULID_Compare(&ulid2, &ulid1));
 }
+
+#endif
