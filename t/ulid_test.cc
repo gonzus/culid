@@ -4,6 +4,11 @@
 #include <ctime>
 #include <ulid.h>
 
+enum {
+  NUMBER_OF_ULIDS = 500,
+  MS_BETWEEN_ULIDS = 1,
+};
+
 TEST(culid, basic_creation_and_formatting) {
   ULID_Factory uf;
   ULID_Factory_Init(&uf);
@@ -19,36 +24,74 @@ TEST(culid, basic_creation_and_formatting) {
   }
 }
 
-static void test_N_ulids(ULID_Factory *uf, unsigned n, int expected) {
-  ULID *ulid = new ULID[n];
-  for (unsigned p = 0; p < n; ++p) {
-    struct timespec ts = {0, 1000000}; // 1 ms
-    nanosleep(&ts, 0);
-    ULID_Create(uf, &ulid[p]);
-  }
-
-  for (unsigned l = 0; l < n; ++l) {
-    for (unsigned r = l + 1; r < n; ++r) {
-      EXPECT_EQ(expected, ULID_Compare(&ulid[l], &ulid[r]));
+static void test_ulids_waiting_between_them(ULID_Factory *uf, unsigned count,
+                                            unsigned long wait_ms,
+                                            int expected) {
+  ULID last;
+  for (unsigned p = 0; p < count; ++p) {
+    if (wait_ms > 0) {
+      struct timespec ts = {0, (long)wait_ms * 1000000};
+      nanosleep(&ts, 0);
     }
+    ULID ulid;
+    ULID_Create(uf, &ulid);
+    if (p > 0) {
+      EXPECT_EQ(expected, ULID_Compare(&last, &ulid));
+    }
+    last = ulid;
   }
-  delete[] ulid;
 }
 
-TEST(culid, sleeping_produces_sorted_ulids) {
+TEST(culid, default_without_sleeping_produces_sorted_ulids) {
   ULID_Factory uf;
   ULID_Factory_Init(&uf);
 
-  test_N_ulids(&uf, 100, -1);
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, 0, -1);
 }
 
-TEST(culid, fixed_time_entropy_produces_identical_ulids) {
+TEST(culid, default_with_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_Init(&uf);
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
+}
+
+TEST(culid, entropy_seed_without_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropySeed(&uf, 19690721);
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, 0, -1);
+}
+
+TEST(culid, entropy_seed_with_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropySeed(&uf, 19690720); // go Neil!
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
+}
+
+TEST(culid, fixed_time_entropy_without_sleeping_produces_sorted_ulids) {
   ULID_Factory uf;
   uint8_t entropy[10] = {1, 2, 3, 4, 5, 6, 7, 8, 7, 6};
   ULID_Factory_SetEntropy(&uf, entropy);
   ULID_Factory_SetTime(&uf, 1733505202556);
 
-  test_N_ulids(&uf, 100, 0);
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, 0, -1);
+}
+
+TEST(culid, fixed_time_entropy_with_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  // clang-format off
+  uint8_t entropy[10] = {
+    0xde, 0xad, 0xbe, 0xef,
+    0xc0, 0xff, 0xee, 0xba, 0xbe,
+    0x11,
+  };
+  // clang-format on
+  ULID_Factory_SetEntropy(&uf, entropy);
+  ULID_Factory_SetTime(&uf, 1733505202556);
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
 }
 
 #if 0

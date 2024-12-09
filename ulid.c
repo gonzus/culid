@@ -32,16 +32,39 @@ void ULID_Factory_SetTime(ULID_Factory *factory, unsigned long time_ms) {
   factory->flags |= ULID_FLAG_TIME;
 }
 
+static void generate_time(unsigned long *time_ms) {
+  struct timeval now;
+  gettimeofday(&now, 0);
+  *time_ms = now.tv_sec * 1000 + now.tv_usec / 1000;
+  // printf("time_ms %lu\n", time_ms);
+}
+
+static void generate_entropy(ULID_Factory *factory,
+                             uint8_t entropy[ULID_BYTES_ENTROPY]) {
+  unsigned size = sizeof(uint32_t);
+  for (unsigned pos = 0; pos < ULID_BYTES_ENTROPY;) {
+    uint32_t random = mtwister_generate_u32(&factory->mt);
+    unsigned copy = size;
+    if (copy > ULID_BYTES_ENTROPY - pos) {
+      copy = ULID_BYTES_ENTROPY - pos;
+    }
+    memcpy(entropy, &random, copy);
+    pos += copy;
+  }
+}
+
 void ULID_Create(ULID_Factory *factory, ULID *ulid) {
+  unsigned inc = 0;
   unsigned long time_ms = 0;
   if (factory->flags & ULID_FLAG_TIME) {
     time_ms = factory->time_ms;
   } else {
-    struct timeval now;
-    gettimeofday(&now, 0);
-    time_ms = now.tv_sec * 1000 + now.tv_usec / 1000;
-    // printf("time_ms %lu\n", time_ms);
+    generate_time(&time_ms);
   }
+  if (factory->time_ms == time_ms) {
+    inc = 1;
+  }
+  factory->time_ms = time_ms;
   ulid->data[0] = (unsigned char)(time_ms >> 40);
   ulid->data[1] = (unsigned char)(time_ms >> 32);
   ulid->data[2] = (unsigned char)(time_ms >> 24);
@@ -49,20 +72,37 @@ void ULID_Create(ULID_Factory *factory, ULID *ulid) {
   ulid->data[4] = (unsigned char)(time_ms >> 8);
   ulid->data[5] = (unsigned char)(time_ms >> 0);
 
-  if (factory->flags & ULID_FLAG_ENTROPY) {
-    memcpy(ulid->data + ULID_BYTES_TIME, factory->entropy, ULID_BYTES_ENTROPY);
+  uint8_t entropy[ULID_BYTES_ENTROPY];
+  if (!inc) {
+    if (factory->flags & ULID_FLAG_ENTROPY) {
+      memcpy(entropy, factory->entropy, ULID_BYTES_ENTROPY);
+    } else {
+      generate_entropy(factory, entropy);
+    }
   } else {
-    unsigned size = sizeof(uint32_t);
-    for (unsigned pos = 0; pos < ULID_BYTES_ENTROPY;) {
-      uint32_t random = mtwister_generate_u32(&factory->mt);
-      unsigned copy = size;
-      if (copy > ULID_BYTES_ENTROPY - pos) {
-        copy = ULID_BYTES_ENTROPY - pos;
+    unsigned zero = 0;
+    for (unsigned p = 0; p < ULID_BYTES_ENTROPY; ++p) {
+      if (factory->entropy[p] != 0)
+        continue;
+      ++zero;
+    }
+    if (zero >= ULID_BYTES_ENTROPY) {
+      generate_entropy(factory, entropy);
+    } else {
+      memcpy(entropy, factory->entropy, ULID_BYTES_ENTROPY);
+      for (unsigned p = 0; p < ULID_BYTES_ENTROPY; ++p) {
+        unsigned n = ULID_BYTES_ENTROPY - p - 1;
+        if (entropy[n] < 0xff) {
+          ++entropy[n];
+          break;
+        } else {
+          entropy[n] = 0;
+        }
       }
-      memcpy(ulid->data + ULID_BYTES_TIME + pos, &random, copy);
-      pos += copy;
     }
   }
+  memcpy(factory->entropy, entropy, ULID_BYTES_ENTROPY);
+  memcpy(ulid->data + ULID_BYTES_TIME, entropy, ULID_BYTES_ENTROPY);
 }
 
 unsigned ULID_Format(const ULID *ulid, char dst[ULID_BYTES_FORMATTED]) {

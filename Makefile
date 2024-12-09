@@ -54,7 +54,7 @@ all: $(EXE)  ## build everything
 
 clean:  ## clean up everything
 	rm -f $(C_OBJ) $(EXE_OBJ)
-	rm -f $(EXE)
+	rm -f $(EXE) $(LIBRARY)
 	rm -fr $(NAME).dSYM
 	rm -fr t/ulid_test t/ulid_test.dSYM
 	rm -fr t/ulid_bench t/ulid_bench.dSYM
