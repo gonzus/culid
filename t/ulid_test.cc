@@ -56,6 +56,20 @@ TEST(culid, default_with_sleeping_produces_sorted_ulids) {
   test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
 }
 
+TEST(culid, rand_without_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_RAND);
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, 0, -1);
+}
+
+TEST(culid, rand_with_sleeping_produces_sorted_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_RAND);
+
+  test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
+}
+
 TEST(culid, entropy_seed_without_sleeping_produces_sorted_ulids) {
   ULID_Factory uf;
   ULID_Factory_SetEntropySeed(&uf, 19690721);

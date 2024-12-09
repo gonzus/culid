@@ -3,81 +3,59 @@
 #include <cstring>
 #include <ulid.h>
 
-static void EncodeTime(benchmark::State &state) {
-  ULID ulid = {0};
+static void CreateDefault(benchmark::State &state) {
+  ULID_Factory uf;
+  ULID_Factory_Init(&uf);
   while (state.KeepRunning()) {
-    ULID_EncodeTime(1484581420, &ulid);
+    ULID ulid;
+    ULID_Create(&uf, &ulid);
   }
 }
-BENCHMARK(EncodeTime);
+BENCHMARK(CreateDefault);
 
-static void EncodeTimeNow(benchmark::State &state) {
-  ULID ulid = {0};
+static void CreateRandTOD(benchmark::State &state) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_RAND);
   while (state.KeepRunning()) {
-    ULID_EncodeTimeNow(&ulid);
+    ULID ulid;
+    ULID_Create(&uf, &ulid);
   }
 }
-BENCHMARK(EncodeTimeNow);
+BENCHMARK(CreateRandTOD);
 
-static void EncodeTimeSystemClockNow(benchmark::State &state) {
-  ULID ulid = {0};
+static void CreateRandSeedTOD(benchmark::State &state) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_RAND);
+  ULID_Factory_SetEntropySeed(&uf, 19690720);
   while (state.KeepRunning()) {
-    ULID_EncodeTimeSystemClockNow(&ulid);
+    ULID ulid;
+    ULID_Create(&uf, &ulid);
   }
 }
-BENCHMARK(EncodeTimeSystemClockNow);
+BENCHMARK(CreateRandSeedTOD);
 
-static void EncodeEntropy(benchmark::State &state) {
-  uint8_t rnd[10];
-  for (unsigned p = 0; p < 10; ++p) {
-    rnd[p] = 4;
-  }
-  ULID ulid = {0};
+static void CreateMTwisterTOD(benchmark::State &state) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_MERSENNE_TWISTER);
   while (state.KeepRunning()) {
-    ULID_EncodeEntropy(rnd, &ulid);
+    ULID ulid;
+    ULID_Create(&uf, &ulid);
   }
 }
-BENCHMARK(EncodeEntropy);
+BENCHMARK(CreateMTwisterTOD);
 
-static void EncodeEntropyRand(benchmark::State &state) {
-  ULID ulid = {0};
+static void CreateMTwisterSeedTOD(benchmark::State &state) {
+  ULID_Factory uf;
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_MERSENNE_TWISTER);
+  ULID_Factory_SetEntropySeed(&uf, 19690720);
   while (state.KeepRunning()) {
-    ULID_EncodeEntropyRand(&ulid);
+    ULID ulid;
+    ULID_Create(&uf, &ulid);
   }
 }
-BENCHMARK(EncodeEntropyRand);
+BENCHMARK(CreateMTwisterSeedTOD);
 
-static void Encode(benchmark::State &state) {
-  uint8_t rnd[10];
-  for (unsigned p = 0; p < 10; ++p) {
-    rnd[p] = 4;
-  }
-  ULID ulid = {0};
-  while (state.KeepRunning()) {
-    ULID_Encode(1484581420, rnd, &ulid);
-  }
-}
-BENCHMARK(Encode);
-
-static void EncodeNowRand(benchmark::State &state) {
-  ULID ulid = {0};
-  while (state.KeepRunning()) {
-    ULID_EncodeNowRand(&ulid);
-  }
-}
-BENCHMARK(EncodeNowRand);
-
-static void Create(benchmark::State &state) {
-  uint8_t rnd[10];
-  for (unsigned p = 0; p < 10; ++p) {
-    rnd[p] = 4;
-  }
-  while (state.KeepRunning()) {
-    ULID_Create(1484581420, rnd);
-  }
-}
-BENCHMARK(Create);
-
+#if 0
 static void CreateNowRand(benchmark::State &state) {
   while (state.KeepRunning()) {
     ULID_CreateNowRand();
@@ -141,5 +119,6 @@ static void CompareULIDs(benchmark::State &state) {
   }
 }
 BENCHMARK(CompareULIDs);
+#endif
 
 BENCHMARK_MAIN();

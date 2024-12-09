@@ -13,18 +13,29 @@ static void print_ulids(ULID_Factory *uf, unsigned n) {
 }
 
 int main(int argc, char *argv[]) {
+  printf("RAND_MAX = %u\n", RAND_MAX);
   ULID_Factory uf;
 #if 1
-  // Random entropy, current time
+  // Default: entropy with mtwister(), current time
   ULID_Factory_Init(&uf);
-#elif 0
+#endif
+#if 0
+  // entropy with rand(), current time
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_RAND);
+#endif
+#if 0
+  // entropy with mtwister(), current time
+  ULID_Factory_SetEntropyKind(&uf, ULID_ENTROPY_MERSENNE_TWISTER);
+#endif
+#if 0
   // Fixed entropy, fixed time
   uint8_t entropy[10] = {1, 2, 3, 4, 5, 6, 7, 8, 7, 6};
   ULID_Factory_SetEntropy(&uf, entropy);
   ULID_Factory_SetTime(&uf, 1733505202556);
-#else
+#endif
+#if 0
   // Seed for entropy, fixed time
-  ULID_Factory_SetEntropySeed(&uf, 19690721);
+  ULID_Factory_SetEntropySeed(&uf, 19690720);
   ULID_Factory_SetTime(&uf, 1733505202556);
 #endif
   if (argc <= 1) {

@@ -13,12 +13,18 @@ enum {
   ULID_BYTES_FORMATTED = 26,
 };
 
+enum ULID_EntropyKind {
+  ULID_ENTROPY_RAND,
+  ULID_ENTROPY_MERSENNE_TWISTER,
+};
+
 typedef struct ULID_Factory {
   MTwister mt;
   uint32_t seed;
   unsigned long time_ms;
   uint8_t entropy[ULID_BYTES_ENTROPY];
   uint8_t flags;
+  uint32_t calls;
 } ULID_Factory;
 
 typedef struct ULID {
@@ -30,6 +36,8 @@ extern "C" {
 #endif
 
 void ULID_Factory_Init(ULID_Factory *factory);
+void ULID_Factory_SetEntropyKind(ULID_Factory *factory,
+                                 enum ULID_EntropyKind kind);
 void ULID_Factory_SetEntropySeed(ULID_Factory *factory, uint32_t seed);
 void ULID_Factory_SetEntropy(ULID_Factory *factory,
                              uint8_t entropy[ULID_BYTES_ENTROPY]);
