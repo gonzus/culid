@@ -37,11 +37,11 @@ extern "C" {
 
 void ULID_Factory_Init(ULID_Factory *factory);
 void ULID_Factory_SetEntropyKind(ULID_Factory *factory,
-                                 enum ULID_EntropyKind kind);
-void ULID_Factory_SetEntropySeed(ULID_Factory *factory, uint32_t seed);
+                                 const enum ULID_EntropyKind kind);
+void ULID_Factory_SetEntropySeed(ULID_Factory *factory, const uint32_t seed);
 void ULID_Factory_SetEntropy(ULID_Factory *factory,
-                             uint8_t entropy[ULID_BYTES_ENTROPY]);
-void ULID_Factory_SetTime(ULID_Factory *factory, unsigned long time_ms);
+                             const uint8_t entropy[ULID_BYTES_ENTROPY]);
+void ULID_Factory_SetTime(ULID_Factory *factory, const unsigned long time_ms);
 
 void ULID_Create(ULID_Factory *factory, ULID *ulid);
 unsigned ULID_Format(const ULID *ulid, char dst[ULID_BYTES_FORMATTED]);

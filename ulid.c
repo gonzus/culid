@@ -60,7 +60,7 @@ void ULID_Factory_Init(ULID_Factory *factory) {
 }
 
 void ULID_Factory_SetEntropyKind(ULID_Factory *factory,
-                                 enum ULID_EntropyKind kind) {
+                                 const enum ULID_EntropyKind kind) {
   switch (kind) {
   case ULID_ENTROPY_RAND:
     factory->flags |= ULID_FLAG_USE_RAND;
@@ -73,7 +73,7 @@ void ULID_Factory_SetEntropyKind(ULID_Factory *factory,
   mtwister_build_from_seed(&factory->mt, factory->seed);
 }
 
-void ULID_Factory_SetEntropySeed(ULID_Factory *factory, uint32_t seed) {
+void ULID_Factory_SetEntropySeed(ULID_Factory *factory, const uint32_t seed) {
   factory->seed = seed;
   factory->flags |= ULID_FLAG_SEED;
   mtwister_build_from_seed(&factory->mt, factory->seed);
@@ -81,12 +81,12 @@ void ULID_Factory_SetEntropySeed(ULID_Factory *factory, uint32_t seed) {
 }
 
 void ULID_Factory_SetEntropy(ULID_Factory *factory,
-                             uint8_t entropy[ULID_BYTES_ENTROPY]) {
+                             const uint8_t entropy[ULID_BYTES_ENTROPY]) {
   memcpy(factory->entropy, entropy, ULID_BYTES_ENTROPY);
   factory->flags |= ULID_FLAG_ENTROPY;
 }
 
-void ULID_Factory_SetTime(ULID_Factory *factory, unsigned long time_ms) {
+void ULID_Factory_SetTime(ULID_Factory *factory, const unsigned long time_ms) {
   factory->time_ms = time_ms;
   factory->flags |= ULID_FLAG_TIME;
 }
@@ -300,29 +300,3 @@ unsigned ULID_GetEntropy(const ULID *ulid,
   memcpy(entropy, ulid->data + ULID_BYTES_TIME, ULID_BYTES_ENTROPY);
   return ULID_BYTES_ENTROPY;
 }
-
-#if 0
-static unsigned EncodeTime(ULID *ulid, unsigned long time_ms) {
-  ulid->data[0] = (unsigned char)(time_ms >> 40);
-  ulid->data[1] = (unsigned char)(time_ms >> 32);
-  ulid->data[2] = (unsigned char)(time_ms >> 24);
-  ulid->data[3] = (unsigned char)(time_ms >> 16);
-  ulid->data[4] = (unsigned char)(time_ms >> 8);
-  ulid->data[5] = (unsigned char)(time_ms >> 0);
-  return 6;
-}
-
-static unsigned EncodeEntropy(ULID *ulid) {
-  if (!mt_built) {
-    mtwister_build_from_random_seed(&mt);
-    mt_built = 1;
-  }
-  uint32_t r0 = mtwister_generate_u32(&mt);
-  memcpy(ulid->data + 6, &r0, 4);
-  uint32_t r1 = mtwister_generate_u32(&mt);
-  memcpy(ulid->data + 10, &r1, 4);
-  uint32_t r2 = mtwister_generate_u32(&mt);
-  memcpy(ulid->data + 14, &r2, 2);
-  return 16;
-}
-#endif
