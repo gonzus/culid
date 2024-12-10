@@ -12,7 +12,7 @@ enum {
 
 TEST(culid, basic_creation_and_formatting) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
 
   ULID ulid;
   ULID_Create(&uf, &ulid);
@@ -45,14 +45,14 @@ static void test_ulids_waiting_between_them(ULID_Factory *uf, unsigned count,
 
 TEST(culid, default_without_sleeping_produces_sorted_ulids) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
 
   test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, 0, -1);
 }
 
 TEST(culid, default_with_sleeping_produces_sorted_ulids) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
 
   test_ulids_waiting_between_them(&uf, NUMBER_OF_ULIDS, MS_BETWEEN_ULIDS, -1);
 }

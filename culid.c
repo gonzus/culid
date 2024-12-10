@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   };
   const char *prog = argv[0];
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
 
   int option = 0;
   while ((option = getopt_long(argc, argv, ":rs:e:t:h", long_options, 0)) !=
@@ -100,19 +100,21 @@ static void print_ulids(ULID_Factory *uf, unsigned n) {
 }
 
 static void show_help(const char *prog) {
-  fprintf(stderr, "%s -- A ULID generator\n", prog);
+  fprintf(stderr, "%s -- Utility to generate ULIDs\n", prog);
+  fprintf(stderr, "\n");
   fprintf(stderr, "Usage: %s [options] number...\n", prog);
   fprintf(stderr, "\n");
   fprintf(stderr, "Options:\n");
-  fprintf(stderr, "  --rand       | -r  use rand / srand for entropy "
+  fprintf(stderr, "\n");
+  fprintf(stderr, "  --rand        | -r  use rand / srand for entropy "
                   "(default: use Mersenne Twister)\n");
-  fprintf(stderr, "  --seed       | -s  use specified seed for entropy "
-                  "(default: get random seed)\n");
-  fprintf(stderr, "  --entropy    | -e  use specified values for entropy "
+  fprintf(stderr, "  --seed ...    | -s  use specified seed for entropy "
+                  "(default: use random seed)\n");
+  fprintf(stderr, "  --entropy ... | -e  use specified values for entropy "
                   "(default: use random entropy)\n");
-  fprintf(stderr, "  --time       | -t  use specified time (in ms) "
+  fprintf(stderr, "  --time ...    | -t  use specified time (in ms) "
                   "(default: use current time)\n");
-  fprintf(stderr, "  --help       | -h  show this help\n");
+  fprintf(stderr, "  --help        | -h  show this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "Examples:\n");
   fprintf(stderr, "\n");
@@ -120,16 +122,16 @@ static void show_help(const char *prog) {
   fprintf(stderr, "  %s\n", prog);
   fprintf(stderr, "\n");
   fprintf(stderr, "  # generate 9 ULIDs using rand / srand for entropy\n");
-  fprintf(stderr, "  %s -r 9\n", prog);
+  fprintf(stderr, "  %s --rand 9\n", prog);
   fprintf(stderr, "\n");
   fprintf(stderr, "  # generate 9 ULIDs using a given seed for entropy\n");
-  fprintf(stderr, "  %s -s 12345 9\n", prog);
+  fprintf(stderr, "  %s --seed 12345 9\n", prog);
   fprintf(stderr, "\n");
   fprintf(stderr, "  # generate 9 ULIDs using specified values for entropy\n");
-  fprintf(stderr, "  %s -e deadbeefc0ffeebabe11 9\n", prog);
+  fprintf(stderr, "  %s --entropy deadbeefc0ffeebabe11 9\n", prog);
   fprintf(stderr, "\n");
   fprintf(stderr, "  # generate 9 ULIDs using specified time (in ms)\n");
-  fprintf(stderr, "  %s -t 3344556677 9\n", prog);
+  fprintf(stderr, "  %s --time 3344556677 9\n", prog);
 }
 
 static unsigned h2d(char c) {
@@ -151,7 +153,7 @@ static uint8_t get_byte(const char *txt, unsigned *pos) {
       return 0;
     unsigned d = h2d(c);
     if (d == (unsigned)-1)
-      continue; // skip separators: de:ad+be/ef == deadbeef
+      continue; // skip separators: de:ad be+ef == deadbeef
     byte <<= 4;
     byte |= d;
     ++p;

@@ -53,7 +53,7 @@ static void inline generate_entropy(ULID_Factory *factory,
   // printf("\n");
 }
 
-void ULID_Factory_Init(ULID_Factory *factory) {
+void ULID_Factory_Default(ULID_Factory *factory) {
   memset(factory, 0, sizeof(ULID_Factory));
   init_rand(0);
   mtwister_build_from_random_seed(&factory->mt);
@@ -135,39 +135,39 @@ void ULID_Create(ULID_Factory *factory, ULID *ulid) {
   ++factory->calls;
 }
 
-unsigned ULID_Format(const ULID *ulid, char dst[ULID_BYTES_FORMATTED]) {
+unsigned ULID_Format(const ULID *ulid, char buf[ULID_BYTES_FORMATTED]) {
   // Crockford's Base32.
   static const char B32[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
   // 10 byte timestamp
-  dst[0] = B32[(ulid->data[0] & 224) >> 5];
-  dst[1] = B32[(ulid->data[0] & 31)];
-  dst[2] = B32[(ulid->data[1] & 248) >> 3];
-  dst[3] = B32[((ulid->data[1] & 7) << 2) | ((ulid->data[2] & 192) >> 6)];
-  dst[4] = B32[(ulid->data[2] & 62) >> 1];
-  dst[5] = B32[((ulid->data[2] & 1) << 4) | ((ulid->data[3] & 240) >> 4)];
-  dst[6] = B32[((ulid->data[3] & 15) << 1) | ((ulid->data[4] & 128) >> 7)];
-  dst[7] = B32[(ulid->data[4] & 124) >> 2];
-  dst[8] = B32[((ulid->data[4] & 3) << 3) | ((ulid->data[5] & 224) >> 5)];
-  dst[9] = B32[(ulid->data[5] & 31)];
+  buf[0] = B32[(ulid->data[0] & 224) >> 5];
+  buf[1] = B32[(ulid->data[0] & 31)];
+  buf[2] = B32[(ulid->data[1] & 248) >> 3];
+  buf[3] = B32[((ulid->data[1] & 7) << 2) | ((ulid->data[2] & 192) >> 6)];
+  buf[4] = B32[(ulid->data[2] & 62) >> 1];
+  buf[5] = B32[((ulid->data[2] & 1) << 4) | ((ulid->data[3] & 240) >> 4)];
+  buf[6] = B32[((ulid->data[3] & 15) << 1) | ((ulid->data[4] & 128) >> 7)];
+  buf[7] = B32[(ulid->data[4] & 124) >> 2];
+  buf[8] = B32[((ulid->data[4] & 3) << 3) | ((ulid->data[5] & 224) >> 5)];
+  buf[9] = B32[(ulid->data[5] & 31)];
 
   // 16 bytes of entropy
-  dst[10] = B32[(ulid->data[6] & 248) >> 3];
-  dst[11] = B32[((ulid->data[6] & 7) << 2) | ((ulid->data[7] & 192) >> 6)];
-  dst[12] = B32[(ulid->data[7] & 62) >> 1];
-  dst[13] = B32[((ulid->data[7] & 1) << 4) | ((ulid->data[8] & 240) >> 4)];
-  dst[14] = B32[((ulid->data[8] & 15) << 1) | ((ulid->data[9] & 128) >> 7)];
-  dst[15] = B32[(ulid->data[9] & 124) >> 2];
-  dst[16] = B32[((ulid->data[9] & 3) << 3) | ((ulid->data[10] & 224) >> 5)];
-  dst[17] = B32[(ulid->data[10] & 31)];
-  dst[18] = B32[(ulid->data[11] & 248) >> 3];
-  dst[19] = B32[((ulid->data[11] & 7) << 2) | ((ulid->data[12] & 192) >> 6)];
-  dst[20] = B32[(ulid->data[12] & 62) >> 1];
-  dst[21] = B32[((ulid->data[12] & 1) << 4) | ((ulid->data[13] & 240) >> 4)];
-  dst[22] = B32[((ulid->data[13] & 15) << 1) | ((ulid->data[14] & 128) >> 7)];
-  dst[23] = B32[(ulid->data[14] & 124) >> 2];
-  dst[24] = B32[((ulid->data[14] & 3) << 3) | ((ulid->data[15] & 224) >> 5)];
-  dst[25] = B32[(ulid->data[15] & 31)];
+  buf[10] = B32[(ulid->data[6] & 248) >> 3];
+  buf[11] = B32[((ulid->data[6] & 7) << 2) | ((ulid->data[7] & 192) >> 6)];
+  buf[12] = B32[(ulid->data[7] & 62) >> 1];
+  buf[13] = B32[((ulid->data[7] & 1) << 4) | ((ulid->data[8] & 240) >> 4)];
+  buf[14] = B32[((ulid->data[8] & 15) << 1) | ((ulid->data[9] & 128) >> 7)];
+  buf[15] = B32[(ulid->data[9] & 124) >> 2];
+  buf[16] = B32[((ulid->data[9] & 3) << 3) | ((ulid->data[10] & 224) >> 5)];
+  buf[17] = B32[(ulid->data[10] & 31)];
+  buf[18] = B32[(ulid->data[11] & 248) >> 3];
+  buf[19] = B32[((ulid->data[11] & 7) << 2) | ((ulid->data[12] & 192) >> 6)];
+  buf[20] = B32[(ulid->data[12] & 62) >> 1];
+  buf[21] = B32[((ulid->data[12] & 1) << 4) | ((ulid->data[13] & 240) >> 4)];
+  buf[22] = B32[((ulid->data[13] & 15) << 1) | ((ulid->data[14] & 128) >> 7)];
+  buf[23] = B32[(ulid->data[14] & 124) >> 2];
+  buf[24] = B32[((ulid->data[14] & 3) << 3) | ((ulid->data[15] & 224) >> 5)];
+  buf[25] = B32[(ulid->data[15] & 31)];
   return ULID_BYTES_FORMATTED;
 }
 

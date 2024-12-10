@@ -5,7 +5,7 @@
 
 static void CreateDefault(benchmark::State &state) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
   while (state.KeepRunning()) {
     ULID ulid;
     ULID_Create(&uf, &ulid);
@@ -57,7 +57,7 @@ BENCHMARK(CreateMTwisterSeedTOD);
 
 static void Format(benchmark::State &state) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
   ULID ulid;
   ULID_Create(&uf, &ulid);
   while (state.KeepRunning()) {
@@ -77,7 +77,7 @@ BENCHMARK(Parse);
 
 static void Compare(benchmark::State &state) {
   ULID_Factory uf;
-  ULID_Factory_Init(&uf);
+  ULID_Factory_Default(&uf);
   ULID l, r;
   ULID_Create(&uf, &l);
   ULID_Create(&uf, &r);

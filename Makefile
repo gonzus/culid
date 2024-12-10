@@ -2,11 +2,26 @@ first: all
 
 NAME = culid
 
-# Prefer this for development -- have impact in performance
+#
+# Run like this to see all dynamic libraries being loaded:
+#   $ DYLD_PRINT_LIBRARIES=1 DYLD_PRINT_LIBRARIES_POST_LAUNCH=1 DYLD_PRINT_RPATHS=1 ./culid
+#
+
+#
+# Prefer this for development -- but there is an impact on performance.
+#
+# Using sanitizers sometimes causes this error:
+#
+#   culid(88471,0x1f9c58f40) malloc: nano zone abandoned due to inability to reserve vm space.
+#
+# The error can be silenced by setting envvar MallocNanoZone to 0:
+#
+#   $ MallocNanoZone=0 ./culid
+#
 C_CPP_ALL_FLAGS += -fsanitize=undefined,address
 C_CPP_ALL_FLAGS += -g
 
-# Prefer this for production -- optimized
+# Prefer this for production -- optimized performance.
 # C_CPP_ALL_FLAGS += -O
 
 C_CPP_COMPILE_FLAGS += -Wall -Wextra -Wshadow
