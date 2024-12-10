@@ -171,7 +171,7 @@ unsigned ULID_Format(const ULID *ulid, char dst[ULID_BYTES_FORMATTED]) {
   return ULID_BYTES_FORMATTED;
 }
 
-unsigned ULID_Parse(ULID *ulid, char str[ULID_BYTES_TOTAL]) {
+unsigned ULID_Parse(ULID *ulid, const char str[ULID_BYTES_TOTAL]) {
   /**
    * Decimal stores decimal encodings for characters.
    * 0xFF indicates invalid character.
@@ -251,29 +251,57 @@ unsigned ULID_Parse(ULID *ulid, char str[ULID_BYTES_TOTAL]) {
 }
 
 int ULID_Compare(const ULID *l, const ULID *r) {
-  for (unsigned p = 0; p < 16; ++p) {
-    if (l->data[p] != r->data[p]) {
-      return (l->data[p] < r->data[p]) * -2 + 1;
-    }
+#define ULID_CMP(ld, rd, p)                                                    \
+  do {                                                                         \
+    if (ld[p] != rd[p]) {                                                      \
+      return (ld[p] < rd[p]) * -2 + 1;                                         \
+    }                                                                          \
+  } while (0)
+
+  const uint8_t *ld = l->data;
+  const uint8_t *rd = r->data;
+#if 1
+  for (unsigned p = 0; p < ULID_BYTES_TOTAL; ++p) {
+    ULID_CMP(ld, rd, p);
   }
+#else
+  // hand-unrolled loop
+  ULID_CMP(ld, rd, 0);
+  ULID_CMP(ld, rd, 1);
+  ULID_CMP(ld, rd, 2);
+  ULID_CMP(ld, rd, 3);
+  ULID_CMP(ld, rd, 4);
+  ULID_CMP(ld, rd, 5);
+  ULID_CMP(ld, rd, 6);
+  ULID_CMP(ld, rd, 7);
+  ULID_CMP(ld, rd, 8);
+  ULID_CMP(ld, rd, 9);
+  ULID_CMP(ld, rd, 10);
+  ULID_CMP(ld, rd, 11);
+  ULID_CMP(ld, rd, 12);
+  ULID_CMP(ld, rd, 13);
+  ULID_CMP(ld, rd, 14);
+  ULID_CMP(ld, rd, 15);
+#endif
   return 0;
 }
 
-#if 0
-unsigned ULID_GetTime(const ULID *ulid, unsigned long *time) {
-  *time = 0;
-  for (unsigned p = 0; p < 6; ++p) {
-    *time <<= 8;
-    *time |= ulid->data[p];
+unsigned ULID_GetTime(const ULID *ulid, unsigned long *time_ms) {
+  *time_ms = 0;
+  for (unsigned p = 0; p < ULID_BYTES_TIME; ++p) {
+    *time_ms <<= 8;
+    *time_ms |= ulid->data[p];
   }
-  return 6;
+  return ULID_BYTES_TIME;
 }
 
-unsigned ULID_GetEntropy(const ULID *ulid, uint8_t entropy[10]) {
-  memcpy(entropy, ulid->data + 6, 10);
-  return 10;
+unsigned ULID_GetEntropy(const ULID *ulid,
+                         uint8_t entropy[ULID_BYTES_ENTROPY]) {
+  memcpy(entropy, ulid->data + ULID_BYTES_TIME, ULID_BYTES_ENTROPY);
+  return ULID_BYTES_ENTROPY;
 }
 
+#if 0
 static unsigned EncodeTime(ULID *ulid, unsigned long time_ms) {
   ulid->data[0] = (unsigned char)(time_ms >> 40);
   ulid->data[1] = (unsigned char)(time_ms >> 32);

@@ -45,8 +45,11 @@ void ULID_Factory_SetTime(ULID_Factory *factory, unsigned long time_ms);
 
 void ULID_Create(ULID_Factory *factory, ULID *ulid);
 unsigned ULID_Format(const ULID *ulid, char dst[ULID_BYTES_FORMATTED]);
-unsigned ULID_Parse(ULID *ulid, char str[ULID_BYTES_TOTAL]);
+unsigned ULID_Parse(ULID *ulid, const char str[ULID_BYTES_TOTAL]);
 int ULID_Compare(const ULID *l, const ULID *r);
+
+unsigned ULID_GetTime(const ULID *ulid, unsigned long *time_ms);
+unsigned ULID_GetEntropy(const ULID *ulid, uint8_t entropy[ULID_BYTES_ENTROPY]);
 
 #ifdef __cplusplus
 }

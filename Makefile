@@ -2,8 +2,11 @@ first: all
 
 NAME = culid
 
+# Prefer this for development -- have impact in performance
 C_CPP_ALL_FLAGS += -fsanitize=undefined,address
 C_CPP_ALL_FLAGS += -g
+
+# Prefer this for production -- optimized
 # C_CPP_ALL_FLAGS += -O
 
 C_CPP_COMPILE_FLAGS += -Wall -Wextra -Wshadow
