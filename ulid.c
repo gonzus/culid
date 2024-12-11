@@ -141,43 +141,48 @@ unsigned ULID_Format(const ULID *ulid, char buf[ULID_BYTES_FORMATTED]) {
    * Only digits and uppercase letters.
    * Skip letters I, L, O, U.
    */
-  static const char B32[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  static const char Encode[33] = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+#define EncN(p, m) (ulid->data[p] & (m))
+#define EncL(p, m, s) ((ulid->data[p] & (m)) << (s))
+#define EncR(p, m, s) ((ulid->data[p] & (m)) >> (s))
 
   // 10 byte timestamp
-  buf[0] = B32[(ulid->data[0] & 224) >> 5];
-  buf[1] = B32[(ulid->data[0] & 31)];
-  buf[2] = B32[(ulid->data[1] & 248) >> 3];
-  buf[3] = B32[((ulid->data[1] & 7) << 2) | ((ulid->data[2] & 192) >> 6)];
-  buf[4] = B32[(ulid->data[2] & 62) >> 1];
-  buf[5] = B32[((ulid->data[2] & 1) << 4) | ((ulid->data[3] & 240) >> 4)];
-  buf[6] = B32[((ulid->data[3] & 15) << 1) | ((ulid->data[4] & 128) >> 7)];
-  buf[7] = B32[(ulid->data[4] & 124) >> 2];
-  buf[8] = B32[((ulid->data[4] & 3) << 3) | ((ulid->data[5] & 224) >> 5)];
-  buf[9] = B32[(ulid->data[5] & 31)];
+  buf[0x00] = Encode[EncR(0, 224, 5)];
+  buf[0x01] = Encode[EncN(0, 31)];
+  buf[0x02] = Encode[EncR(1, 248, 3)];
+  buf[0x03] = Encode[EncL(1, 7, 2) | EncR(2, 192, 6)];
+  buf[0x04] = Encode[EncR(2, 62, 1)];
+  buf[0x05] = Encode[EncL(2, 1, 4) | EncR(3, 240, 4)];
+  buf[0x06] = Encode[EncL(3, 15, 1) | EncR(4, 128, 7)];
+  buf[0x07] = Encode[EncR(4, 124, 2)];
+  buf[0x08] = Encode[EncL(4, 3, 3) | EncR(5, 224, 5)];
+  buf[0x09] = Encode[EncN(5, 31)];
 
   // 16 bytes of entropy
-  buf[10] = B32[(ulid->data[6] & 248) >> 3];
-  buf[11] = B32[((ulid->data[6] & 7) << 2) | ((ulid->data[7] & 192) >> 6)];
-  buf[12] = B32[(ulid->data[7] & 62) >> 1];
-  buf[13] = B32[((ulid->data[7] & 1) << 4) | ((ulid->data[8] & 240) >> 4)];
-  buf[14] = B32[((ulid->data[8] & 15) << 1) | ((ulid->data[9] & 128) >> 7)];
-  buf[15] = B32[(ulid->data[9] & 124) >> 2];
-  buf[16] = B32[((ulid->data[9] & 3) << 3) | ((ulid->data[10] & 224) >> 5)];
-  buf[17] = B32[(ulid->data[10] & 31)];
-  buf[18] = B32[(ulid->data[11] & 248) >> 3];
-  buf[19] = B32[((ulid->data[11] & 7) << 2) | ((ulid->data[12] & 192) >> 6)];
-  buf[20] = B32[(ulid->data[12] & 62) >> 1];
-  buf[21] = B32[((ulid->data[12] & 1) << 4) | ((ulid->data[13] & 240) >> 4)];
-  buf[22] = B32[((ulid->data[13] & 15) << 1) | ((ulid->data[14] & 128) >> 7)];
-  buf[23] = B32[(ulid->data[14] & 124) >> 2];
-  buf[24] = B32[((ulid->data[14] & 3) << 3) | ((ulid->data[15] & 224) >> 5)];
-  buf[25] = B32[(ulid->data[15] & 31)];
+  buf[0x0a] = Encode[EncR(6, 248, 3)];
+  buf[0x0b] = Encode[EncL(6, 7, 2) | EncR(7, 192, 6)];
+  buf[0x0c] = Encode[EncR(7, 62, 1)];
+  buf[0x0d] = Encode[EncL(7, 1, 4) | EncR(8, 240, 4)];
+  buf[0x0e] = Encode[EncL(8, 15, 1) | EncR(9, 128, 7)];
+  buf[0x0f] = Encode[EncR(9, 124, 2)];
+  buf[0x10] = Encode[EncL(9, 3, 3) | EncR(10, 224, 5)];
+  buf[0x11] = Encode[EncN(10, 31)];
+  buf[0x12] = Encode[EncR(11, 248, 3)];
+  buf[0x13] = Encode[EncL(11, 7, 2) | EncR(12, 192, 6)];
+  buf[0x14] = Encode[EncR(12, 62, 1)];
+  buf[0x15] = Encode[EncL(12, 1, 4) | EncR(13, 240, 4)];
+  buf[0x16] = Encode[EncL(13, 15, 1) | EncR(14, 128, 7)];
+  buf[0x17] = Encode[EncR(14, 124, 2)];
+  buf[0x18] = Encode[EncL(14, 3, 3) | EncR(15, 224, 5)];
+  buf[0x19] = Encode[EncN(15, 31)];
+
   return ULID_BYTES_FORMATTED;
 }
 
 unsigned ULID_Parse(ULID *ulid, const char str[ULID_BYTES_TOTAL]) {
   /**
-   * Decimal stores decimal encodings for characters.
+   * Decode stores decimal encodings for characters.
    * 0xFF indicates invalid character.
    *
    * We allow all uppercase and lowercase letters when parsing.
@@ -194,7 +199,7 @@ unsigned ULID_Parse(ULID *ulid, const char str[ULID_BYTES_TOTAL]) {
    *   U, u => 0
    */
   // clang-format off
-  static const unsigned char Decimal[256] = {
+  static const unsigned char Decode[256] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -240,37 +245,35 @@ unsigned ULID_Parse(ULID *ulid, const char str[ULID_BYTES_TOTAL]) {
   };
   // clang-format on
 
+#define DecN(p) (Decode[(int)str[p]])
+#define DecL(p, s) (Decode[(int)str[p]] << (s))
+#define DecR(p, s) (Decode[(int)str[p]] >> (s))
+
   // timestamp
-  ulid->data[0] = (Decimal[(int)str[0]] << 5) | Decimal[(int)str[1]];
-  ulid->data[1] = (Decimal[(int)str[2]] << 3) | (Decimal[(int)str[3]] >> 2);
-  ulid->data[2] = (Decimal[(int)str[3]] << 6) | (Decimal[(int)str[4]] << 1) |
-                  (Decimal[(int)str[5]] >> 4);
-  ulid->data[3] = (Decimal[(int)str[5]] << 4) | (Decimal[(int)str[6]] >> 1);
-  ulid->data[4] = (Decimal[(int)str[6]] << 7) | (Decimal[(int)str[7]] << 2) |
-                  (Decimal[(int)str[8]] >> 3);
-  ulid->data[5] = (Decimal[(int)str[8]] << 5) | Decimal[(int)str[9]];
+  ulid->data[0x0] = DecL(0, 5) | DecN(1);
+  ulid->data[0x1] = DecL(2, 3) | DecR(3, 2);
+  ulid->data[0x2] = DecL(3, 6) | DecL(4, 1) | DecR(5, 4);
+  ulid->data[0x3] = DecL(5, 4) | DecR(6, 1);
+  ulid->data[0x4] = DecL(6, 7) | DecL(7, 2) | DecR(8, 3);
+  ulid->data[0x5] = DecL(8, 5) | DecN(9);
 
   // entropy
-  ulid->data[6] = (Decimal[(int)str[10]] << 3) | (Decimal[(int)str[11]] >> 2);
-  ulid->data[7] = (Decimal[(int)str[11]] << 6) | (Decimal[(int)str[12]] << 1) |
-                  (Decimal[(int)str[13]] >> 4);
-  ulid->data[8] = (Decimal[(int)str[13]] << 4) | (Decimal[(int)str[14]] >> 1);
-  ulid->data[9] = (Decimal[(int)str[14]] << 7) | (Decimal[(int)str[15]] << 2) |
-                  (Decimal[(int)str[16]] >> 3);
-  ulid->data[10] = (Decimal[(int)str[16]] << 5) | Decimal[(int)str[17]];
-  ulid->data[11] = (Decimal[(int)str[18]] << 3) | (Decimal[(int)str[19]] >> 2);
-  ulid->data[12] = (Decimal[(int)str[19]] << 6) | (Decimal[(int)str[20]] << 1) |
-                   (Decimal[(int)str[21]] >> 4);
-  ulid->data[13] = (Decimal[(int)str[21]] << 4) | (Decimal[(int)str[22]] >> 1);
-  ulid->data[14] = (Decimal[(int)str[22]] << 7) | (Decimal[(int)str[23]] << 2) |
-                   (Decimal[(int)str[24]] >> 3);
-  ulid->data[15] = (Decimal[(int)str[24]] << 5) | Decimal[(int)str[25]];
+  ulid->data[0x6] = DecL(10, 3) | DecR(11, 2);
+  ulid->data[0x7] = DecL(11, 6) | DecL(12, 1) | DecR(13, 4);
+  ulid->data[0x8] = DecL(13, 4) | DecR(14, 1);
+  ulid->data[0x9] = DecL(14, 7) | DecL(15, 2) | DecR(16, 3);
+  ulid->data[0xa] = DecL(16, 5) | DecN(17);
+  ulid->data[0xb] = DecL(18, 3) | DecR(19, 2);
+  ulid->data[0xc] = DecL(19, 6) | DecL(20, 1) | DecR(21, 4);
+  ulid->data[0xd] = DecL(21, 4) | DecR(22, 1);
+  ulid->data[0xe] = DecL(22, 7) | DecL(23, 2) | DecR(24, 3);
+  ulid->data[0xf] = DecL(24, 5) | DecN(25);
 
   return ULID_BYTES_TOTAL;
 }
 
 int ULID_Compare(const ULID *l, const ULID *r) {
-#define ULID_CMP(ld, rd, p)                                                    \
+#define CmpULID(ld, rd, p)                                                     \
   do {                                                                         \
     if (ld[p] != rd[p]) {                                                      \
       return (ld[p] < rd[p]) * -2 + 1;                                         \
@@ -281,26 +284,26 @@ int ULID_Compare(const ULID *l, const ULID *r) {
   const uint8_t *rd = r->data;
 #if 1
   for (unsigned p = 0; p < ULID_BYTES_TOTAL; ++p) {
-    ULID_CMP(ld, rd, p);
+    CmpULID(ld, rd, p);
   }
 #else
   // hand-unrolled loop
-  ULID_CMP(ld, rd, 0);
-  ULID_CMP(ld, rd, 1);
-  ULID_CMP(ld, rd, 2);
-  ULID_CMP(ld, rd, 3);
-  ULID_CMP(ld, rd, 4);
-  ULID_CMP(ld, rd, 5);
-  ULID_CMP(ld, rd, 6);
-  ULID_CMP(ld, rd, 7);
-  ULID_CMP(ld, rd, 8);
-  ULID_CMP(ld, rd, 9);
-  ULID_CMP(ld, rd, 10);
-  ULID_CMP(ld, rd, 11);
-  ULID_CMP(ld, rd, 12);
-  ULID_CMP(ld, rd, 13);
-  ULID_CMP(ld, rd, 14);
-  ULID_CMP(ld, rd, 15);
+  CmpULID(ld, rd, 0);
+  CmpULID(ld, rd, 1);
+  CmpULID(ld, rd, 2);
+  CmpULID(ld, rd, 3);
+  CmpULID(ld, rd, 4);
+  CmpULID(ld, rd, 5);
+  CmpULID(ld, rd, 6);
+  CmpULID(ld, rd, 7);
+  CmpULID(ld, rd, 8);
+  CmpULID(ld, rd, 9);
+  CmpULID(ld, rd, 10);
+  CmpULID(ld, rd, 11);
+  CmpULID(ld, rd, 12);
+  CmpULID(ld, rd, 13);
+  CmpULID(ld, rd, 14);
+  CmpULID(ld, rd, 15);
 #endif
   return 0;
 }

@@ -145,6 +145,24 @@ TEST(culid, can_roundtrip_time_and_entropy) {
   EXPECT_EQ(entropy[9], got_entropy[9] - 1);
 }
 
+TEST(culid, can_format_and_parse_ulids) {
+  ULID_Factory uf;
+  ULID_Factory_Default(&uf);
+
+  for (unsigned p = 0; p < 3; ++p) {
+    ULID dat;
+    ULID_Create(&uf, &dat);
+
+    char txt[26];
+    ULID_Format(&dat, txt);
+
+    ULID got = {0};
+    ULID_Parse(&got, txt);
+
+    EXPECT_EQ(0, ULID_Compare(&dat, &got));
+  }
+}
+
 TEST(culid, can_parse_ulids_with_upper_lower_other_characters) {
   // clang-format off
   const char *ulids[] = {
