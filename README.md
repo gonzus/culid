@@ -2,6 +2,8 @@
 
 Inspired on [this C++ implementation](https://github.com/suyash/ulid).
 
+You can find the ULID specification [here](https://github.com/ulid/spec).
+
 Order is guaranteed, even for ULIDs generated within the same millisecond
 or with fixed time / entropy.
 
