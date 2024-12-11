@@ -16,8 +16,8 @@ enum {
 
 // The kinds of entropy sources we support:
 enum ULID_EntropyKind {
-  ULID_ENTROPY_RAND,             // use rand() / srand()
   ULID_ENTROPY_MERSENNE_TWISTER, // use Mersenne Twister
+  ULID_ENTROPY_RAND,             // use rand() / srand()
 };
 
 // A factory which encapsulates all the state required to generate ULIDs.
