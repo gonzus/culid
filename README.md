@@ -19,6 +19,10 @@ Type `make help` for available build targets.  Some useful targets are:
 When running the command-line utility `culid`,
 you can get help with `culid -h`.
 
+Please see comments in `Makefile` about `C_CPP_ALL_FLAGS` in order to
+compile for development (sanitizing / debugging) or production (performance).
+The default is to compile for production.
+
 ## API
 
 For full details of the API, please read the comments in `ulid.h`.
