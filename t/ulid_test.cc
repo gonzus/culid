@@ -144,3 +144,32 @@ TEST(culid, can_roundtrip_time_and_entropy) {
   // last byte was incremented to preserver order
   EXPECT_EQ(entropy[9], got_entropy[9] - 1);
 }
+
+TEST(culid, can_parse_ulids_with_upper_lower_other_characters) {
+  // clang-format off
+  const char *ulids[] = {
+    "01JEV0N6VMFJ1BBR0Y46BE4RRN",
+    "01jev0n6vmfj1bbr0y46be4rrn",
+    "O1JEV0N6VMFJ1BBR0Y46BE4RRN",
+    "o1JEV0N6VMFJ1BBR0Y46BE4RRN",
+    "0IJEV0N6VMFJ1BBR0Y46BE4RRN",
+    "0iJEV0N6VMFJ1BBR0Y46BE4RRN",
+    "0LJEV0N6VMFJ1BBR0Y46BE4RRN",
+    "0lJEV0N6VMFJ1BBR0Y46BE4RRN",
+    "U1JEV0N6VMFJ1BBR0Y46BE4RRN",
+    "u1JEV0N6VMFJ1BBR0Y46BE4RRN",
+  };
+  // clang-format on
+  ULID_Factory uf;
+  ULID_Factory_Default(&uf);
+
+  ULID last;
+  for (unsigned p = 0; p < sizeof(ulids) / sizeof(ulids[0]); ++p) {
+    ULID ulid;
+    ULID_Parse(&ulid, ulids[p]);
+    if (p > 0) {
+      EXPECT_EQ(0, ULID_Compare(&last, &ulid));
+    }
+    last = ulid;
+  }
+}
