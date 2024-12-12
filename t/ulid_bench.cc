@@ -1,7 +1,8 @@
-#include <benchmark/benchmark.h>
-
-#include <cstring>
+#define CULID_IMPLEMENTATION
 #include <ulid.h>
+
+#include <benchmark/benchmark.h>
+#include <cstring>
 
 static void CreateDefault(benchmark::State &state) {
   ULID_Factory uf;

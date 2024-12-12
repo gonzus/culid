@@ -1,8 +1,9 @@
-#include <gtest/gtest.h>
+#define CULID_IMPLEMENTATION
+#include <ulid.h>
 
 #include <cstring>
 #include <ctime>
-#include <ulid.h>
+#include <gtest/gtest.h>
 
 enum {
   NUMBER_OF_ULIDS = 500,

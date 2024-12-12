@@ -48,31 +48,25 @@ BENCH_LIBS = benchmark benchmark_main
 BENCH_LINK = $(patsubst %,-l%,$(BENCH_LIBS))
 
 EXE = $(NAME)
-LIBRARY = lib$(NAME).a
 
-C_SRC = \
-	mtwister.c \
-	ulid.c \
+C_HDR = \
+	mtwister.h \
+	ulid.h \
 
-C_HDR = $(C_SRC:.c=.h)
-C_OBJ = $(C_SRC:.c=.o)
 EXE_OBJ = $(NAME).o
 
 
 %.o: %.c $(C_HDR)
 	cc $(CFLAGS) -c -o $@ $(word 1, $^)
 
-$(LIBRARY): $(C_OBJ)  ## (re)build library
-	ar -crs $@ $^
-
-$(EXE): $(LIBRARY) $(EXE_OBJ)
+$(EXE): $(EXE_OBJ)
 	cc $(LDFLAGS) -o $@ $^
 
 all: $(EXE)  ## build everything
 
 clean:  ## clean up everything
-	rm -f $(C_OBJ) $(EXE_OBJ)
-	rm -f $(EXE) $(LIBRARY)
+	rm -f $(EXE_OBJ)
+	rm -f $(EXE)
 	rm -fr $(NAME).dSYM
 	rm -fr t/ulid_test t/ulid_test.dSYM
 	rm -fr t/ulid_bench t/ulid_bench.dSYM
@@ -82,10 +76,10 @@ help: ## display this help
 
 .PHONY: first all test bench clean help
 
-t/ulid_test: t/ulid_test.cc $(LIBRARY)
+t/ulid_test: t/ulid_test.cc
 	c++ $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) $(TEST_LINK)
 
-t/ulid_bench: t/ulid_bench.cc $(LIBRARY)
+t/ulid_bench: t/ulid_bench.cc
 	c++ $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) $(BENCH_LINK)
 
 test: t/ulid_test  ## run all tests

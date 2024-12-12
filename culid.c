@@ -1,4 +1,6 @@
+#define CULID_IMPLEMENTATION
 #include "ulid.h"
+
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>

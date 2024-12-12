@@ -13,6 +13,15 @@ for usage examples.
 
 ## Usage
 
+This is a header-only library.
+In order to use it, make sure exactly **one**
+of your `C` source files which includes `ulid.h`,
+defines `CULID_IMPLEMENTATION` before including it:
+```C
+#define CULID_IMPLEMENTATION
+#include "ulid.h"
+```
+
 Type `make help` for available build targets.  Some useful targets are:
 * `make all`: build library and utilities.
 * `make test`: run tests.
